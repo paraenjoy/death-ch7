@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>투표 · 가사상태의 사이먼은</title>
+<meta name="description" content="7장 죽음의 본질에 관하여 발표 중 투표">
+<style>
+/* layout: one centered column, three option buttons that turn into result bars after the first vote */
+:root{
+  color-scheme: light;
+  --bg:#EEF1F4; --panel:#FFFFFF; --line:#D5DAE0; --ink:#14181D; --ink2:#3F4854; --mute:#6B7480;
+  --p2:#3F51E0; --led:#22C55E; --mon:#223040; --mon-ink:#F2F5F8; --lamp:#4ADE80;
+  --sans:'Pretendard','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif;
+  --mono:ui-monospace,'SF Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-text-size-adjust:100%}
+main{width:100%;max-width:520px;padding:28px 20px 28px;display:flex;flex-direction:column}
+.kicker{margin:0;font-size:.9rem;color:var(--ink2)}
+h1{margin:8px 0 0;font-size:clamp(2rem,1.5rem + 2.6vw,2.75rem);line-height:1.2;font-weight:700;letter-spacing:-.02em;word-break:keep-all}
+.desc{margin:12px 0 0;font-size:1.05rem;line-height:1.6;color:var(--ink2);word-break:keep-all}
+.opts{display:grid;gap:12px;margin-top:24px}
+.opt{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;min-block-size:76px;padding:14px 18px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel);color:inherit;font:inherit;font-size:1.3rem;font-weight:600;text-align:left;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.opt>span,.opt>i{position:relative}
+.opt .fill{position:absolute;inset:0;transform-origin:left center;transform:scaleX(0);transition:transform .6s cubic-bezier(.3,.7,.2,1);opacity:.3}
+.opt[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.opt[aria-disabled="true"]{cursor:default}
+.opt:focus-visible,a:focus-visible{outline:2px solid var(--p2);outline-offset:2px}
+.sw{display:block;width:48px;height:24px}
+.sw.dead,.fill.dead{background:#9AA3AE}
+.sw.alive{border-radius:12px;background:linear-gradient(180deg,#86EFAC,var(--led));box-shadow:0 0 0 1px rgba(34,197,94,.45),0 3px 10px rgba(34,197,94,.4)}
+.fill.alive{background:var(--led)}
+.sw.none{border-radius:12px;border:1.5px solid var(--mute);background:repeating-linear-gradient(115deg,#fff 0 5px,#CBD2DA 5px 8px)}
+.fill.none{background:repeating-linear-gradient(115deg,#fff 0 6px,#8B95A1 6px 10px)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1rem;font-weight:500;white-space:nowrap}
+.num small{font-size:.8rem;color:var(--ink2);margin-left:6px}
+.mine{display:none;margin-left:8px;padding:1px 8px;border-radius:9px;background:var(--ink);color:#fff;font-size:.75rem;font-weight:500;vertical-align:middle}
+.opt[aria-pressed="true"] .mine{display:inline-block}
+#status{min-height:1.6em;margin:18px 0 0;font-size:1rem;line-height:1.6;color:var(--ink2)}
+#status.err{color:#B42318}
+.foot{margin:auto 0 0;padding-top:32px;font-size:.95rem}
+.foot a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-weight:500}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">7장 죽음의 본질에 관하여</p>
+  <h1 id="q">가사상태의 사이먼은</h1>
+  <p class="desc">체온을 낮춰 신진대사를 모두 멈췄다가 나중에 다시 되살렸다. 멈춰 있는 동안 그는 죽은 것인가?</p>
+  <div class="opts" role="group" aria-labelledby="q">
+    <button type="button" class="opt" data-i="0" aria-pressed="false"><span class="fill dead" aria-hidden="true"></span><i class="sw dead" aria-hidden="true"></i><span>죽었다<b class="mine">내 답</b></span><span class="num"></span></button>
+    <button type="button" class="opt" data-i="1" aria-pressed="false"><span class="fill alive" aria-hidden="true"></span><i class="sw alive" aria-hidden="true"></i><span>살아 있었다<b class="mine">내 답</b></span><span class="num"></span></button>
+    <button type="button" class="opt" data-i="2" aria-pressed="false"><span class="fill none" aria-hidden="true"></span><i class="sw none" aria-hidden="true"></i><span>둘 다 아니다<b class="mine">내 답</b></span><span class="num"></span></button>
+  </div>
+  <p id="status" role="status">하나를 고르면 지금까지의 결과가 보인다.</p>
+  <p class="foot"><a href="./">발표 자료 보기</a></p>
+</main>
+<script>
+(function(){
+'use strict';
+var API='https://bszfsnipdxsueyvspqlu.supabase.co/rest/v1/rpc/';
+var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzemZzbmlwZHhzdWV5dnNwcWx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0Mjg4MzgsImV4cCI6MjExMTAwNDgzOH0.TKxGaFFw4Xy2PLNsCIT2eh0-_C29dZmUPlhnnO3ai3s';
+var STORE='ch7-simon-vote';
+var opts=document.querySelectorAll('.opt'),status=document.getElementById('status');
+var me={id:null,choice:null,round:null},counts=null,coolUntil=0,busy=false,timer=null,tick=null;
+
+function uuid(){
+  if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
+  var b=new Uint8Array(16);(window.crypto||window.msCrypto).getRandomValues(b);
+  b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;
+  var h=[];for(var i=0;i<16;i++)h.push((b[i]+256).toString(16).slice(1));
+  return h.slice(0,4).join('')+'-'+h.slice(4,6).join('')+'-'+h.slice(6,8).join('')+'-'+h.slice(8,10).join('')+'-'+h.slice(10).join('');
+}
+function load(){
+  try{var s=JSON.parse(localStorage.getItem(STORE)||'null');if(s&&s.id){me.id=s.id;me.choice=(s.choice===0||s.choice===1||s.choice===2)?s.choice:null;me.round=s.round||null;}}catch(e){}
+  if(!me.id)me.id=uuid();
+}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(me));}catch(e){}}
+function rpc(fn,body){
+  return fetch(API+fn,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})})
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
+}
+function say(t,err){status.textContent=t;status.className=err?'err':'';}
+function paint(){
+  var voted=me.choice!==null,c=counts||[0,0,0],tot=c[0]+c[1]+c[2];
+  for(var i=0;i<3;i++){
+    var o=opts[i],share=tot?c[i]/tot:0;
+    o.setAttribute('aria-pressed',String(me.choice===i));
+    o.querySelector('.fill').style.transform='scaleX('+(voted&&counts?share:0)+')';
+    o.querySelector('.num').innerHTML=(voted&&counts)?(c[i]+'표<small>'+Math.round(share*100)+'%</small>'):'';
+  }
+}
+function summary(){
+  if(me.choice===null||!counts)return;
+  var left=Math.ceil((coolUntil-Date.now())/1000),tot=counts[0]+counts[1]+counts[2];
+  say('지금까지 '+tot+'명 참여. '+(left>0?(left+'초 뒤에 답을 바꿀 수 있다.'):'다른 답을 누르면 바꿀 수 있다.'));
+}
+function cool(){
+  coolUntil=Date.now()+3200;
+  for(var i=0;i<3;i++)opts[i].setAttribute('aria-disabled','true');
+  clearInterval(tick);
+  tick=setInterval(function(){
+    summary();
+    if(Date.now()>=coolUntil){clearInterval(tick);for(var i=0;i<3;i++)opts[i].removeAttribute('aria-disabled');}
+  },500);
+}
+function fresh(c){
+  counts=c;
+  if(me.choice!==null&&me.round!==null&&c[3]!==me.round){
+    me.choice=null;me.round=null;save();paint();
+    say('투표가 새로 시작됐다. 다시 고른다.');
+    return false;
+  }
+  paint();summary();return true;
+}
+function poll(){
+  if(document.hidden||me.choice===null||busy)return;
+  rpc('vote_counts').then(fresh).catch(function(){});
+}
+function startPoll(){if(!timer)timer=setInterval(poll,3000);}
+function choose(i){
+  if(busy||i===me.choice)return;
+  if(Date.now()<coolUntil){summary();return;}
+  var before=me.choice;
+  busy=true;me.choice=i;paint();say('보내는 중');
+  rpc('cast_vote',{p_voter:me.id,p_choice:i}).then(function(res){
+    busy=false;counts=res.counts||counts;
+    if(res.ok){me.round=counts?counts[3]:null;save();cool();paint();summary();startPoll();}
+    else{
+      me.choice=before;paint();
+      if(res.reason==='wait'){cool();say('방금 답을 바꿨다. 3초 뒤에 다시 누른다.');}
+      else say('지금은 표를 더 받지 못한다.',true);
+    }
+  }).catch(function(){
+    busy=false;me.choice=before;paint();
+    say('전송하지 못했다. 연결을 확인하고 다시 누른다.',true);
+  });
+}
+for(var i=0;i<3;i++)opts[i].addEventListener('click',function(){choose(Number(this.dataset.i));});
+document.addEventListener('visibilitychange',function(){if(!document.hidden)poll();});
+load();paint();
+if(me.choice!==null){rpc('vote_counts').then(function(c){if(fresh(c))startPoll();}).catch(function(){say('결과를 불러오지 못했다. 잠시 뒤 다시 연다.',true);});}
+})();
+</script>
+</body>
+</html>
