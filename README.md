@@ -7,3 +7,10 @@
 - `deck.pdf` 26쪽 PDF
 - `fonts/` IBM Plex Sans KR, IBM Plex Mono (SIL Open Font License)
 - `js/qrcode.js` qrcode-generator (MIT)
+
+## 발표자 전용 (화면의 단축키 목록에는 없음)
+
+19쪽 투표 화면에서만 동작한다.
+
+- `Enter` 투표하지 않고 결과 보기. 발표용 노트북에서 발표자 표를 섞지 않고 결과를 띄울 때 쓴다. 한 번 더 누르면 다시 숨긴다
+- `Shift` + `R` 투표 초기화. PIN을 넣어야 지워진다. 리허설 뒤, 발표 직전에 한 번 비운다
