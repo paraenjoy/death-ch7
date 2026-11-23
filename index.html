@@ -8,7 +8,7 @@
 <meta name="description" content="셸리 케이건 『죽음이란 무엇인가』 7장 죽음의 본질에 관하여 발표 자료">
 <link rel="preload" href="fonts/ibm-plex-sans-kr-korean-500-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* layout: one fixed 1280x720 stage scaled to the window. diagram steps: display, readout strip, controls. sheet steps: one full card under the header */
+/* layout: one fixed 1280x720 stage scaled to the window. every step keeps the same grid: display, readout strip, controls. cover, contents, discussion, vote, who decides and questions turn the display into a monitor overlay */
 @font-face{font-family:'IBM Plex Sans KR';font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-kr-korean-400-normal.woff2) format('woff2')}
 @font-face{font-family:'IBM Plex Sans KR';font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-kr-korean-500-normal.woff2) format('woff2')}
 @font-face{font-family:'IBM Plex Sans KR';font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-kr-korean-600-normal.woff2) format('woff2')}
@@ -23,6 +23,7 @@
   --rail:rgba(20,24,29,.18); --grid:rgba(20,24,29,.06);
   --b1:#FFB45A; --b2:#F08A1C; --p1:#7C8CFF; --p2:#3F51E0;
   --mon:#223040; --mon-ink:#F2F5F8; --mon-ink2:#A9B6C4; --led:#22C55E; --lamp:#4ADE80; --dead:#C6CBD3;
+  --def-stop:#EF4444; --def-perm:#EAB308; --def-cap:#22C55E;
   --sans:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
 }
@@ -51,7 +52,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 
 /* main column */
 #main{display:flex;flex-direction:column;gap:12px}
-#main.hid{visibility:hidden}
 
 /* display */
 #display{position:relative;height:330px;border-radius:16px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
@@ -140,11 +140,18 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .vrow .ans i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--mute);transition:background .3s}
 .vrow.yes .ans i{background:var(--led);border-color:#15803D;box-shadow:0 0 0 3px rgba(34,197,94,.22),0 0 9px rgba(34,197,94,.85)}
 
-/* sheets: full cards for cover, contents, discussion, vote, who decides, questions */
-#sheet{position:absolute;left:48px;right:48px;top:78px;bottom:20px;border-radius:16px;background:var(--panel);border:1px solid var(--line);display:none;overflow:hidden}
-#sheet.show{display:block}
-.sh{position:absolute;inset:0;padding:26px 40px 28px;display:flex;flex-direction:column}
-.sh h2{margin:0;font-weight:600;letter-spacing:-.02em;word-break:keep-all;text-wrap:balance}
+/* overlay: the display turns into a monitor; readout and controls stay where they are */
+#overlay{inset:0;z-index:4;display:none;color:var(--mon-ink);background-color:rgba(34,48,64,.94);background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,rgba(255,255,255,0) 1px 3px);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+#overlay.show{display:block}
+#overlay button:focus-visible{outline-color:var(--lamp)}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column}
+.ov.text{justify-content:center;gap:14px;padding:0 64px}
+.ov .eyebrow{font-size:15px;font-weight:500;color:var(--lamp)}
+.ov h2{margin:0;font-size:40px;line-height:1.25;font-weight:600;letter-spacing:-.02em;word-break:keep-all;text-wrap:balance}
+.ov.text p{margin:0;max-width:1000px;font-size:22px;line-height:1.5;color:var(--mon-ink2);word-break:keep-all}
+.ov.cards{padding:18px 24px}
+.ocard{border-radius:12px;background:var(--bg);color:var(--ink);text-align:left}
+#lower.idle>#verdict,#lower.idle .col:not([data-level="1"]),#lower.idle #casenav{opacity:.3;pointer-events:none}
 .mt{position:absolute;height:14px}
 .mt.b{background:linear-gradient(180deg,var(--b1),var(--b2))}
 .mt.p{background:linear-gradient(180deg,var(--p1),var(--p2))}
@@ -152,113 +159,106 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .mt.dead{background:var(--dead)}
 .mt.aid{background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.65) 0 4px,rgba(255,255,255,0) 4px 10px),linear-gradient(180deg,var(--b1),var(--b2))}
 
-/* cover */
-.cover{padding:44px 56px 34px}
-.cover .kicker{margin:0;font-size:18px;color:var(--ink2)}
-.cstrip{position:relative;height:82px;margin-top:64px}
-.clab{position:absolute;top:-4px;font-size:18px;color:var(--ink2);white-space:nowrap}
-.cover .cwords{position:relative;height:100px;margin-top:22px}
-.cover .cwords span{position:absolute;top:0;font-size:78px;line-height:100px;white-space:nowrap}
-.cover .readout{margin-top:44px}
-.cover .readout p{font-size:28px}
-.cover .by{margin:auto 0 0;font-size:16px;color:var(--ink2)}
-
 /* contents */
-.groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
-.groups span{font-size:17px;color:var(--ink2);padding-bottom:7px;border-bottom:2px solid var(--ink)}
+.groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.groups span{font-size:15px;color:var(--mon-ink2);padding-bottom:6px;border-bottom:2px solid rgba(255,255,255,.35)}
 .groups span:first-child{grid-column:span 3}
-.groups span:last-child{border-color:var(--p2);color:var(--p2);font-weight:500}
-.stations{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin-top:14px}
-.st{display:flex;flex-direction:column;padding:14px 16px 14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);text-align:left}
-.st:hover,.chip:hover{border-color:var(--ink2)}
-.thumb{position:relative;display:block;height:124px;border-radius:10px;background:#fff;border:1px solid var(--line);overflow:hidden}
-.thumb svg{position:absolute}
-.thumb .mt{height:18px}
-.st .no{margin-top:14px;font-size:16px;color:var(--ink2)}
-.st .name{margin-top:2px;font-size:25px;line-height:1.3;font-weight:600;word-break:keep-all;text-wrap:balance}
-.st .gist{margin-top:10px;font-size:19px;text-wrap:balance;line-height:1.45;color:var(--ink2);word-break:keep-all}
-.st .pg{margin-top:auto;font-family:var(--mono);font-size:15px;color:var(--ink2)}
-.tocfoot{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:20px;margin-top:20px;align-items:end}
-.tocfoot h3{margin:0 0 8px;font-size:14px;font-weight:500;color:var(--ink2)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{min-height:34px;padding:4px 12px;border-radius:17px;border:1px solid var(--line);background:var(--panel);font-size:14px;font-weight:500;white-space:nowrap}
-.chip small{font-family:var(--mono);font-size:12px;color:var(--ink2);margin-right:6px}
-.endbtn{min-height:76px;padding:10px 16px;border-radius:14px;border:1px solid var(--ink);background:var(--ink);color:#fff;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px}
-.endbtn b{font-size:20px;font-weight:600}
-.endbtn small{font-family:var(--mono);font-size:13px;color:var(--mon-ink2)}
+.groups span:last-child{color:var(--mon-ink);border-color:var(--mon-ink)}
+.stations{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:10px}
+.st{display:flex;flex-direction:column;padding:10px 12px 12px;border:0;font:inherit;cursor:pointer}
+.st:hover{box-shadow:0 0 0 2px var(--lamp)}
+.thumb{position:relative;display:block;height:64px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.thumb svg{position:absolute;left:0;top:0}
+.thumb .mt{height:12px}
+.st .meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;font-size:15px;color:var(--ink2)}
+.st .pg{font-family:var(--mono);font-size:14px}
+.st .name{margin-top:2px;font-size:20px;line-height:1.25;font-weight:600;word-break:keep-all;text-wrap:balance}
+.st .gist{margin-top:4px;font-size:15px;line-height:1.35;color:var(--ink2);word-break:keep-all;text-wrap:balance}
+.endrow{display:flex;justify-content:space-between;align-items:center;min-height:36px;margin-top:10px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);color:var(--mon-ink);font-size:16px;font-weight:500}
+.endrow:hover{border-color:var(--lamp)}
+.endrow small{font-family:var(--mono);font-size:14px;color:var(--mon-ink2)}
 
-/* discussion 1 */
-.ask .body{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:40px;align-items:center}
-.ask h2{font-size:46px;line-height:1.25}
-.ask .sub{margin:22px 0 0;font-size:22px;line-height:1.5;color:var(--ink2);word-break:keep-all}
-.ask .sub+.sub{margin-top:6px;font-size:25px;font-weight:500;color:var(--ink)}
-.fig{position:relative;height:284px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
-.fig .mt{height:24px}
-.fig span{position:absolute;font-size:16px;color:var(--ink2);white-space:nowrap}
-.fig .band{position:absolute;border:1.5px dashed var(--ink);border-radius:12px}
-.fig svg{position:absolute}
-
-/* vote */
-.vote2 .body{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 384px;gap:44px;align-items:center}
-.vote2 .tagline{margin:0 0 10px;font-size:19px;color:var(--ink2)}
-.vote2 h2{font-size:56px;line-height:1.2}
-.vrows{display:grid;grid-template-columns:auto minmax(0,1fr) 124px;gap:20px 20px;align-items:center;margin-top:36px}
-.vname{display:flex;align-items:center;gap:14px;font-size:28px;font-weight:600;white-space:nowrap}
-.sw{flex:none;width:52px;height:26px}
-.sw.dead{background:#9AA3AE}
-.sw.alive{border-radius:13px;background:linear-gradient(180deg,#86EFAC,var(--led));box-shadow:0 0 0 1px rgba(34,197,94,.45),0 3px 10px rgba(34,197,94,.4)}
-.sw.none{border-radius:13px;border:1.5px solid var(--mute);background:repeating-linear-gradient(115deg,#fff 0 5px,#CBD2DA 5px 8px)}
-.vtrack{height:40px;border-radius:8px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
-.vfill{height:100%;transform-origin:left center;transform:scaleX(0);transition:transform .7s cubic-bezier(.3,.7,.2,1)}
-.vfill.dead{background:#9AA3AE}
-.vfill.alive{background:linear-gradient(180deg,#86EFAC,var(--led))}
-.vfill.none{background:repeating-linear-gradient(115deg,#fff 0 5px,#AEB7C2 5px 9px)}
-.vnum{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:24px;font-weight:500;text-align:right;white-space:nowrap}
-.vnum small{font-size:14px;color:var(--ink2);margin-left:6px}
-.vfoot{display:flex;align-items:center;gap:16px;margin-top:34px;font-size:18px;color:var(--ink2)}
-#reveal{min-height:44px;padding:8px 18px;border-radius:10px;border:1px solid var(--ink);background:var(--ink);color:#fff;font-size:16px;font-weight:500}
-.qrcard{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 18px 18px;border-radius:14px;background:var(--bg);border:1px solid var(--line);text-align:center}
-#qrbox{width:300px;height:300px;border-radius:10px;background:#fff;border:1px solid var(--line);overflow:hidden}
+/* vote: the three bars are the buttons; results appear once you pick one */
+.ov.vote{flex-direction:row;align-items:center;gap:44px;padding:0 40px 0 56px}
+.vleft{flex:1;min-width:0}
+.vrows{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.vopt{display:grid;grid-template-columns:190px minmax(0,1fr) 76px;align-items:center;gap:18px;min-height:50px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.vopt[aria-disabled="true"]{cursor:default}
+.vname{font-size:26px;font-weight:600;white-space:nowrap}
+.vtrack{position:relative;display:block;height:36px;border-radius:8px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3);overflow:hidden}
+.vopt:hover .vtrack{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.65)}
+.vopt[aria-pressed="true"] .vtrack{box-shadow:inset 0 0 0 2.5px var(--mon-ink)}
+.vfill{position:absolute;inset:0;transform-origin:left center;transform:scaleX(0);transition:transform .7s cubic-bezier(.3,.7,.2,1)}
+.vfill.f0{background:var(--def-stop)}
+.vfill.f1{background:var(--def-cap)}
+.vfill.f2{background:#9AA3AE}
+.vpct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;text-align:right}
+#vstat{min-height:24px;margin:14px 0 0;font-size:17px;color:var(--mon-ink2)}
+.qrcard{flex:none;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+#qrbox{width:208px;height:208px;border-radius:10px;background:#fff;overflow:hidden}
 #qrbox svg{display:block;width:100%;height:100%}
-.qrcard b{font-family:var(--mono);font-size:22px;font-weight:500;white-space:nowrap}
-.qrcard small{font-size:16px;color:var(--ink2)}
+.qrcard b{font-family:var(--mono);font-size:18px;font-weight:500;white-space:nowrap}
+.qrcard small{font-size:14px;color:var(--mon-ink2)}
 
-/* who decides */
-.bd{position:relative;height:116px;margin-top:22px}
-.bd .tube{top:26px;height:38px}
-.bd .tube.off{border-radius:19px}
-.bd .lbl{position:absolute;top:-3px;font-size:17px;color:var(--ink2);white-space:nowrap}
-.bd .marker{position:absolute;left:645px;top:18px;width:4px;height:98px;border-radius:2px;background:var(--ink)}
-.bd .mtag{position:absolute;left:657px;top:72px;padding:1px 10px;border-radius:10px;background:var(--ink);color:#fff;font-size:15px;font-weight:500;white-space:nowrap}
-.bd .bus{position:absolute;left:131px;right:131px;bottom:0;height:2px;background:var(--ink)}
-.bd svg{position:absolute;left:619px;top:-4px}
-.mods{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:22px}
-.mod{position:relative;padding:14px 16px 14px;border-radius:14px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column}
-.mod::before{content:'';position:absolute;left:calc(50% - 1px);top:-23px;width:2px;height:23px;background:var(--ink)}
-.mod .n{font-family:var(--mono);font-size:14px;color:var(--ink2)}
-.mod h3{margin:0;font-size:26px;line-height:1.25;font-weight:600}
-.mod .dec{margin:3px 0 0;font-size:18px;color:var(--ink2);word-break:keep-all}
-.viz{position:relative;height:124px;margin-top:16px;border-radius:10px;background:#fff;border:1px solid var(--line)}
+/* who decides and questions: four cards on the monitor */
+.cards4{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.mod{padding:14px;display:flex;flex-direction:column}
+.ohead{display:flex;align-items:baseline;gap:10px}
+.mod .n{font-family:var(--mono);font-size:16px;color:var(--ink2)}
+.mod h3{margin:0;font-size:24px;line-height:1.25;font-weight:600}
+.mod .dec{margin:2px 0 0;font-size:16px;color:var(--ink2);word-break:keep-all}
+.viz>*{margin-top:12px}
+.viz{position:relative;height:116px;margin-top:12px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
 .viz span{position:absolute;font-size:14px;color:var(--ink);white-space:nowrap}
 .viz .mt{height:20px}
-.viz .dot{position:absolute;top:24px;width:24px;height:24px;border-radius:50%}
-.viz .seg{position:absolute;left:14px;right:14px;height:36px;display:grid;grid-template-columns:74px 1fr 1fr;align-items:center;font-size:15px}
-.viz .seg b{font-weight:500;color:var(--ink)}
-.viz .seg i{height:32px;margin-left:4px;border-radius:7px;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;font-style:normal;color:var(--ink)}
-.mod .mnote{margin:auto 0 0;padding-top:12px;font-size:17px;line-height:1.45;font-weight:500;word-break:keep-all;text-wrap:balance}
-
-/* questions */
-.qgrid{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
-.q{display:grid;grid-template-columns:70px minmax(0,1fr);column-gap:16px;align-content:center;padding:18px 26px 20px 22px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
-.q .num{grid-row:span 2;align-self:center;font-size:72px;line-height:1;font-weight:600;font-variant-numeric:tabular-nums;text-align:center}
-.q .key{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:600;color:var(--ink2)}
-.q .key i{flex:none;display:block;width:50px;height:20px}
-.q p{margin:8px 0 0;font-size:23px;line-height:1.42;font-weight:500;word-break:keep-all;text-wrap:balance}
-.ic-knob{border-radius:10px;background:linear-gradient(145deg,#fff,#DDE2E8);border:1px solid var(--mute);position:relative}
-.ic-knob::after{content:'';position:absolute;left:31px;top:3px;width:3px;height:12px;border-radius:2px;background:var(--ink)}
-.ic-sw{border-radius:10px;border:1.5px solid var(--mute);background:linear-gradient(90deg,var(--ink) 0 50%,#fff 50% 100%)}
+.viz .dot{position:absolute;top:12px;width:22px;height:22px;border-radius:50%}
+.viz .seg{position:absolute;left:12px;right:12px;height:34px;display:grid;grid-template-columns:72px 1fr 1fr;align-items:center;font-size:15px}
+.viz .seg b{font-weight:500}
+.viz .seg i{height:30px;margin-left:4px;border-radius:7px;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;font-style:normal}
+.mod .mnote{margin:auto 0 0;padding-top:10px;font-size:17px;line-height:1.45;font-weight:500;word-break:keep-all;text-wrap:balance}
+.q{padding:16px;display:flex;flex-direction:column}
+.q .num{font-size:44px;line-height:1;font-weight:600;font-variant-numeric:tabular-nums}
+.q .key{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:16px;font-weight:600;color:var(--ink2)}
+.q .key i{flex:none;display:block;width:40px;height:16px}
+.q p{margin:8px 0 0;font-size:20px;line-height:1.42;font-weight:500;word-break:keep-all}
+.ic-knob{border-radius:8px;background:linear-gradient(145deg,#fff,#DDE2E8);border:1px solid var(--mute);position:relative}
+.ic-knob::after{content:'';position:absolute;left:24px;top:2px;width:3px;height:10px;border-radius:2px;background:var(--ink)}
+.ic-sw{border-radius:8px;border:1.5px solid var(--mute);background:linear-gradient(90deg,var(--ink) 0 50%,#fff 50% 100%)}
 .ic-dead{background:var(--dead)}
-.ic-off{border-radius:10px;border:1.5px solid var(--mute);background:#fff}
+.ic-off{border-radius:8px;border:1.5px solid var(--mute);background:#fff}
+
+/* light monitor, for a weak projector (C key) */
+.rl #overlay{background-color:rgba(255,255,255,.96);background-image:none;color:var(--ink)}
+.rl .ov.text p,.rl #vstat,.rl .qrcard small,.rl .groups span{color:var(--ink2)}
+.rl .ov .eyebrow{color:#15803D}
+.rl .groups span{border-color:var(--line)}
+.rl .groups span:last-child{color:var(--ink);border-color:var(--ink)}
+.rl .ocard{box-shadow:inset 0 0 0 1px var(--line)}
+.rl .vtrack{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--line)}
+.rl .vopt[aria-pressed="true"] .vtrack{box-shadow:inset 0 0 0 2.5px var(--ink)}
+.rl #qrbox{box-shadow:inset 0 0 0 1px var(--line)}
+.rl .endrow{border-color:var(--line);background:var(--bg);color:var(--ink)}
+.rl .endrow small{color:var(--ink2)}
+
+/* the same step 19 on a phone held upright: one column, finger-sized bars */
+#phone{position:fixed;inset:0;z-index:20;overflow-y:auto;overscroll-behavior:contain;background:var(--bg);color:var(--ink)}
+#phone[hidden]{display:none}
+#phone main{max-width:520px;min-height:100%;margin:0 auto;padding:24px 20px 28px;display:flex;flex-direction:column}
+.pk{margin:0;font-size:14px;color:var(--ink2)}
+.pd{margin:14px 0 0;font-size:17px;line-height:1.55;color:var(--ink2);word-break:keep-all}
+#phone h1{margin:4px 0 0;font-size:clamp(1.9rem,1.4rem + 2.4vw,2.6rem);line-height:1.2;font-weight:600;letter-spacing:-.02em;word-break:keep-all}
+.popts{display:grid;gap:12px;margin-top:22px}
+.popt{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;row-gap:10px;min-block-size:72px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel);color:inherit;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.popt[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.popt[aria-disabled="true"]{cursor:default}
+.popt .pn{font-size:1.3rem;font-weight:600}
+.popt .pp{font-family:var(--mono);font-size:1.15rem;font-weight:500;font-variant-numeric:tabular-nums}
+.popt .pt{grid-column:1/-1;position:relative;display:none;height:10px;border-radius:5px;background:var(--bg);overflow:hidden}
+#phone.shown .popt .pt{display:block}
+#pstat{min-height:1.6em;margin:16px 0 0;font-size:1rem;line-height:1.6;color:var(--ink2);word-break:keep-all}
+#pstat.err{color:#B42318}
+#pdeck{align-self:flex-start;margin:auto 0 0;min-height:44px;padding:24px 0 0;border:0;background:none;color:var(--ink);font-size:.95rem;font-weight:500;text-decoration:underline}
+body.phonevote #fit,body.phonevote #rot{display:none!important}
 
 /* dialogs and notes outside the stage */
 dialog{border:1px solid var(--line);border-radius:14px;padding:22px 24px;width:min(340px,calc(100vw - 32px));color:var(--ink);font-family:var(--sans)}
@@ -280,7 +280,7 @@ body.static *,#print *{animation:none!important;transition:none!important}
 @media print{
   @page{size:1280px 720px;margin:0}
   html,body{height:auto;overflow:visible;background:#fff}
-  #fit,#rot,dialog,#dlmenu{display:none!important}
+  #fit,#rot,#phone,dialog,#dlmenu{display:none!important}
   #print{display:block}
   #print #stage{transform:none!important;break-after:page;overflow:hidden;background:var(--bg)}
   *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
@@ -324,6 +324,7 @@ body.static *,#print *{animation:none!important;transition:none!important}
   <div id="scan" class="abs" aria-hidden="true"><i></i></div>
   <div id="marks"></div>
   <span id="probe" class="abs mono"></span>
+  <div id="overlay" class="abs"></div>
 </div>
 
 <div id="caption" class="readout"><span class="tag" id="captag">판독</span><span class="sep" aria-hidden="true"></span><p id="captext" aria-live="polite"></p></div>
@@ -354,9 +355,9 @@ body.static *,#print *{animation:none!important;transition:none!important}
     <div class="col" data-level="3">
       <p class="lab">죽음의 정의</p>
       <div class="track">
-        <button type="button" class="opt" data-k="def" data-v="stop" style="--c:#EF4444"><i aria-hidden="true"></i>멈춤</button>
-        <button type="button" class="opt" data-k="def" data-v="permanent" style="--c:#EAB308"><i aria-hidden="true"></i>영구 멈춤</button>
-        <button type="button" class="opt" data-k="def" data-v="capacity" style="--c:#22C55E"><i aria-hidden="true"></i>능력 상실</button>
+        <button type="button" class="opt" data-k="def" data-v="stop" style="--c:var(--def-stop)"><i aria-hidden="true"></i>멈춤</button>
+        <button type="button" class="opt" data-k="def" data-v="permanent" style="--c:var(--def-perm)"><i aria-hidden="true"></i>영구 멈춤</button>
+        <button type="button" class="opt" data-k="def" data-v="capacity" style="--c:var(--def-cap)"><i aria-hidden="true"></i>능력 상실</button>
       </div>
     </div>
     <div class="col" data-level="4" id="meanscol">
@@ -384,8 +385,6 @@ body.static *,#print *{animation:none!important;transition:none!important}
 </div>
 </div>
 
-<div id="sheet"></div>
-
 </div></div>
 
 <div id="dlmenu" popover>
@@ -396,7 +395,7 @@ body.static *,#print *{animation:none!important;transition:none!important}
 <dialog id="resetdlg">
   <form method="dialog">
     <h2>투표 초기화</h2>
-    <p>지금까지 모인 표를 모두 지운다.</p>
+    <p>지금까지 모인 표를 모두 지웁니다.</p>
     <label for="pin">PIN</label>
     <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="off" aria-describedby="pinerr">
     <p id="pinerr" role="alert"></p>
@@ -404,10 +403,25 @@ body.static *,#print *{animation:none!important;transition:none!important}
   </form>
 </dialog>
 
-<p id="rot">화면을 가로로 돌리면 크게 보인다.</p>
+<p id="rot">가로로 돌리면 크게 볼 수 있습니다.</p>
+
+<div id="phone" hidden>
+  <main>
+    <p class="pk">7장 죽음의 본질에 관하여 · 19 / 26 투표</p>
+    <p class="pd">체온을 낮춰 신진대사를 모두 멈췄다가 나중에 되살렸다. 멈춰 있는 동안,</p>
+    <h1 id="pq">가사상태의 사이먼은</h1>
+    <div class="popts" role="group" aria-labelledby="pq">
+      <button type="button" class="popt" data-vote="0" aria-pressed="false"><span class="pn">죽어 있었다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f0"></span></span></button>
+      <button type="button" class="popt" data-vote="1" aria-pressed="false"><span class="pn">살아 있었다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f1"></span></span></button>
+      <button type="button" class="popt" data-vote="2" aria-pressed="false"><span class="pn">둘 다 아니다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f2"></span></span></button>
+    </div>
+    <p id="pstat" role="status"></p>
+    <button type="button" id="pdeck">발표 화면 보기</button>
+  </main>
+</div>
 <div id="print" aria-hidden="true"></div>
 
-<script src="js/qrcode.js" defer></script>
+<script src="js/qrcode.js"></script>
 <script>
 (function(){
 'use strict';
@@ -415,6 +429,7 @@ var API='https://bszfsnipdxsueyvspqlu.supabase.co/rest/v1/rpc/';
 var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzemZzbmlwZHhzdWV5dnNwcWx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0Mjg4MzgsImV4cCI6MjExMTAwNDgzOH0.TKxGaFFw4Xy2PLNsCIT2eh0-_C29dZmUPlhnnO3ai3s';
 var SITE=/^https?:$/.test(location.protocol)?location.origin:'https://death-ch7.vercel.app';
 var VOTE_URL=SITE+'/vote';
+var VSTORE='ch7-simon-vote';
 var X0=168,X1=1136;
 function seg(a,b,s,o){var r={a:a,b:b,s:s,need:0,resume:false};if(o)for(var k in o)r[k]=o[k];return r;}
 function pad(n){return ('0'+n).slice(-2);}
@@ -495,19 +510,19 @@ function lensRanges(st){
 }
 
 /* ---------- steps ---------- */
-var D={c:0,view:null,def:'capacity',means:2,probe:'main',level:1,intu:false,again:false,sheet:null,cap:''};
+var D={c:0,view:null,def:'capacity',means:2,probe:'main',level:1,intu:false,again:false,idle:false,ov:null,tag:'판독',cap:''};
 function S(o){var r={};for(var k in D)r[k]=D[k];for(k in o)r[k]=o[k];return r;}
 var SEC0='7장 · 죽음의 본질에 관하여',SEC1='Ⅰ 무엇이 멈출 때 죽는가',SEC2='Ⅱ 살아 있는 심장을 꺼내도 되는가',SEC3='Ⅲ 멈춤이 아니라 능력',SEC4='Ⅳ 경계는 누가 정하는가',SEC5='Ⅴ 맺음과 토론 질문';
 var STEPS=[
- S({sec:SEC0,title:'The Nature of Death',c:2,sheet:'cover'}),
- S({sec:SEC0,title:'목차',c:2,sheet:'toc'}),
+ S({sec:SEC0,title:'The Nature of Death',c:2,idle:true,ov:'cover',tag:'발표',cap:'삶과 죽음의 철학 · 임낙원 외 1명'}),
+ S({sec:SEC0,title:'목차',c:2,idle:true,ov:'toc',tag:'순서',cap:'케이건의 논의 Ⅰ~Ⅲ을 따라간 뒤, Ⅳ에서 우리 조의 논의를 덧붙인다.'}),
  S({sec:SEC1,title:'몸의 기능과 인격의 기능은 보통 함께 멈춘다',c:0,cap:'B 기능은 소화·호흡·심박, P 기능은 생각·소통·자의식이다. 둘이 함께 멈추는 순간이 죽음이다.'}),
  S({sec:SEC1,title:'생각만 먼저 멈추면 죽음의 후보가 둘이 된다',c:1,cap:'P 기능이 멈춘 순간과 B 기능이 멈춘 순간. 나는 둘 중 언제 죽는가?'}),
  S({sec:SEC1,title:'생각은 멈췄고 몸은 살아 있다. 나는 죽었는가?',c:1,view:'person',level:2,cap:'인격 관점: 나는 생각이 멈춘 순간에 이미 죽었다. 남은 것은 살아 있는 몸이다.'}),
  S({sec:SEC1,title:'생각은 멈췄고 몸은 살아 있다. 나는 죽었는가?',c:1,view:'body',level:2,cap:'육체 관점: 나는 아직 살아 있다. 다만 더 이상 사람은 아니다.'}),
  S({sec:SEC1,title:'죽은 뒤에도 나는 존재하는가',c:1,view:'body',probe:'corpse',level:2,cap:'육체 관점: 죽은 뒤에도 나는 존재한다. 다만 시체로만 존재한다.'}),
  S({sec:SEC2,title:'몸만 남은 환자의 심장을 적출해도 되는가',c:1,view:null,level:2,cap:'인격 관점에서는 나를 죽이는 일이 아니고, 육체 관점에서는 나를 죽이는 일이다.'}),
- S({sec:SEC2,title:'중간 토론',c:1,view:null,level:2,sheet:'ask'}),
+ S({sec:SEC2,title:'중간 토론',c:1,view:null,level:2,ov:'ask',cap:'‘살아 있는가’만으로는 답이 나오지 않는다. ‘누구의, 어떤 권리인가’를 물어야 한다.'}),
  S({sec:SEC3,title:'정의 1 · P 기능이 멈추면 죽음이다',c:2,view:'person',def:'stop',level:3,intu:true,cap:'이 정의대로면 새벽 3시 20분의 나는 죽어 있었다.'}),
  S({sec:SEC3,title:'정의 2 · P 기능이 영구히 멈추면 죽음이다',c:2,view:'person',def:'permanent',level:3,intu:true,cap:'아침에 생각이 돌아오니 잠은 죽음이 아니다. 여기까지는 맞는다.'}),
  S({sec:SEC3,title:'정의 2 · P 기능이 영구히 멈추면 죽음이다',c:3,view:'person',def:'permanent',level:3,intu:true,cap:'프랭크는 다시 깨어나지 못했다. 이 정의대로면 자고 있던 2시 15분에 이미 죽어 있었다.'}),
@@ -517,97 +532,57 @@ var STEPS=[
  S({sec:SEC3,title:'부서진 것 · 혼수상태 2',c:6,view:'person',def:'capacity',level:3,intu:true,cap:'조직 자체가 파괴됐다. 몸은 살아 있지만 사람으로서는 존재하지 않는다.'}),
  S({sec:SEC3,title:'사이먼의 가사상태 · 그는 죽었는가',c:7,view:'body',def:'stop',level:3,cap:'B 기능이 멈춘 것이 기준이면 사이먼은 죽었다가 되살아났다.'}),
  S({sec:SEC3,title:'사이먼의 가사상태 · 그는 죽었는가',c:7,view:'body',def:'capacity',level:3,cap:'능력의 상실이 기준이면 사이먼은 처음부터 죽지 않았다. 케이건도 어느 쪽인지 모르겠다고 한다.'}),
- S({sec:SEC3,title:'투표',c:7,view:'body',def:'capacity',level:3,sheet:'vote'}),
+ S({sec:SEC3,title:'투표',c:7,view:'body',def:'capacity',level:3,ov:'vote',cap:'케이건은 세 가지 답을 모두 열어 둔다. 하나를 고르면 지금까지의 결과가 보인다.'}),
  S({sec:SEC3,title:'케이건의 결론 · 죽음에 신비는 없다',c:0,view:'body',def:'capacity',probe:'corpse',level:3,again:true,cap:'몸은 작동하다가 부서진다. 케이건에게는 이것이 죽음에 관한 전부다.'}),
  S({sec:SEC4,title:'‘능력’은 어떤 수단까지 허용한 능력인가',c:8,view:'body',def:'capacity',means:1,level:4,cap:'인공호흡기가 몸을 유지한다. 기계의 도움까지 수단으로 인정하면 이 몸은 살아 있다.'}),
  S({sec:SEC4,title:'법이 그은 선',c:8,view:'body',def:'capacity',means:0,level:4,cap:'법은 뇌 전체가 되살아날 수 없다고 판정된 뇌사자를 살아 있는 사람과 구분한다.'}),
  S({sec:SEC4,title:'기술이 옮기는 선',c:7,view:'body',def:'capacity',means:1,level:4,again:true,cap:'현재 의학으로는 사이먼을 되살릴 수 없다. 이 기준이면 그는 죽은 것이다.'}),
  S({sec:SEC4,title:'기술이 옮기는 선 · 2022년 예일대, 2024년 중산대의 실험',c:7,view:'body',def:'capacity',means:2,level:4,again:true,cap:'기술이 생기면 같은 몸이 살아 있는 쪽으로 넘어온다.'}),
- S({sec:SEC4,title:'이 경계는 누가, 어떻게 정하는가',c:8,view:'body',def:'capacity',means:0,level:4,sheet:'who'}),
- S({sec:SEC5,title:'토론 질문',c:1,view:null,level:1,sheet:'qs'})
+ S({sec:SEC4,title:'이 경계는 누가, 어떻게 정하는가',c:8,view:'body',def:'capacity',means:0,level:4,ov:'who',cap:'‘되살릴 수 있는가’와 함께 ‘되살리기로 하는가’도 경계를 정한다.'}),
+ S({sec:SEC5,title:'토론 질문',c:1,view:null,level:1,idle:true,ov:'qs',tag:'맺음',cap:'죽음에 신비가 없다는 말이 맞더라도, 신비가 사라진 자리에는 현실과 결정이 남는다.'})
 ];
 var TOC=[['Ⅰ','무엇이 멈출 때 죽는가',2,'3–7','두 기능, 두 관점, 두 번의 죽음'],['Ⅱ','살아 있는 심장을 꺼내도 되는가',7,'8–9','지킬 것은 생명인가, 인격인가'],['Ⅲ','멈춤이 아니라 능력',9,'10–20','멈춤, 영구 멈춤, 능력 상실'],['Ⅳ','경계는 누가 정하는가',20,'21–25','법이 그은 선, 기술이 옮기는 선']];
 
-/* ---------- sheets ---------- */
+/* ---------- overlays on the display ---------- */
 function mt(cls,l,t,w,more){return '<i class="mt '+cls+'" style="left:'+l+'px;top:'+t+'px;width:'+w+'px;'+(more||'')+'"></i>';}
 var HEART='<path d="M12 21C5 15 2.5 12 2.5 8.2 2.5 5.3 4.7 3.2 7.4 3.2c1.8 0 3.5 1 4.6 2.6 1.1-1.6 2.8-2.6 4.6-2.6 2.7 0 4.9 2.1 4.9 5 0 3.8-2.5 6.8-9.5 12.8z" fill="#fff" stroke="#14181D" stroke-width="2" stroke-linejoin="round"/>';
 var THUMBS=[
- mt('b',14,36,196,'border-radius:9px 0 0 9px')+mt('p',52,72,84)+mt('dead',136,72,74)+'<svg width="224" height="124" viewBox="0 0 224 124" aria-hidden="true"><text x="129" y="110" font-size="15" fill="#3F51E0">★</text><text x="203" y="28" font-size="15" fill="#F08A1C">★</text></svg>',
- mt('b',14,36,196,'border-radius:9px 0 0 9px')+mt('p',52,72,70)+mt('dead',122,72,88)+'<svg width="36" height="36" viewBox="0 0 24 24" style="left:148px;top:27px" aria-hidden="true">'+HEART+'</svg>',
- mt('p',14,36,54,'border-radius:9px')+mt('off',71,36,66,'border-radius:9px')+mt('p',140,36,70,'border-radius:9px 0 0 9px')+mt('p',14,72,96,'border-radius:9px 0 0 9px')+mt('dead',112,72,98),
- mt('off',14,58,108,'border-radius:9px')+mt('dead',134,58,76)+'<svg width="224" height="124" viewBox="0 0 224 124" aria-hidden="true"><rect x="126" y="40" width="4" height="54" rx="2" fill="#14181D"/><path d="M106 28h44M106 28l7-6M106 28l7 6M150 28l-7-6M150 28l-7 6" stroke="#14181D" stroke-width="2" stroke-linecap="round" fill="none"/></svg>'
+ mt('b',12,16,225,'border-radius:6px 0 0 6px')+mt('p',54,38,90)+mt('dead',144,38,93)+'<svg width="249" height="64" viewBox="0 0 249 64" aria-hidden="true"><text x="138" y="63" font-size="12" fill="#3F51E0">★</text><text x="228" y="12" font-size="12" fill="#F08A1C">★</text></svg>',
+ mt('b',12,16,225,'border-radius:6px 0 0 6px')+mt('p',54,38,74)+mt('dead',128,38,109)+'<svg width="26" height="26" viewBox="0 0 24 24" style="left:170px;top:9px" aria-hidden="true">'+HEART+'</svg>',
+ mt('p',12,16,58,'border-radius:6px')+mt('off',73,16,70,'border-radius:6px')+mt('p',146,16,91,'border-radius:6px 0 0 6px')+mt('p',12,38,100,'border-radius:6px 0 0 6px')+mt('dead',114,38,123),
+ mt('off',12,30,114,'border-radius:6px')+mt('dead',134,30,103)+'<svg width="249" height="64" viewBox="0 0 249 64" aria-hidden="true"><rect x="128" y="20" width="4" height="36" rx="2" fill="#14181D"/><path d="M110 10h40M110 10l6-5M110 10l6 5M150 10l-6-5M150 10l-6 5" stroke="#14181D" stroke-width="2" stroke-linecap="round" fill="none"/></svg>'
 ];
-var SHEETS={
- cover:function(){return '<div class="sh cover">'+
-  '<p class="kicker">셸리 케이건 『죽음이란 무엇인가』 7장 죽음의 본질에 관하여</p>'+
-  '<div class="cstrip" aria-hidden="true">'+
-   '<span class="clab" style="left:0">켜짐</span><span class="clab" style="left:238px">꺼짐 · 다시 켤 수 있음</span><span class="clab" style="left:679px">부서짐 · 다시 켤 수 없음</span>'+
-   '<div class="tube lit p" style="left:0;top:30px;width:232px;height:52px;border-radius:26px"></div>'+
-   '<div class="tube off" style="left:238px;top:30px;width:260px;height:52px;border-radius:26px"></div>'+
-   '<div class="tube lit p" style="left:504px;top:30px;width:172px;height:52px;border-radius:26px 0 0 26px"></div>'+
-   '<div class="tube broken" style="left:679px;top:30px;width:393px;height:52px"></div>'+
-  '</div>'+
-  '<h2 class="cwords"><span style="left:238px">꺼진 것과</span> <span style="left:679px">부서진 것</span></h2>'+
-  '<div class="readout"><span class="tag">첫 질문</span><span class="sep" aria-hidden="true"></span><p>어젯밤 새벽 3시 20분, 나는 살아 있었는가?</p></div>'+
-  '<p class="by">삶과 죽음의 철학 · 발표 임낙원 외 1명</p></div>';},
+var OVERLAYS={
+ cover:function(){return '<div class="ov text"><span class="eyebrow">7장 · 죽음의 본질에 관하여</span><h2>꺼진 것과 부서진 것</h2><p>어젯밤 새벽 3시 20분, 여러분은 살아 있었습니까?</p></div>';},
  toc:function(){
-  var h='<div class="sh toc2"><div class="groups"><span>케이건의 논의</span><span>우리 조의 논의</span></div><div class="stations">';
-  TOC.forEach(function(t,i){h+='<button type="button" class="st" data-go="'+t[2]+'"><span class="thumb" aria-hidden="true">'+THUMBS[i]+'</span><span class="no">'+t[0]+'</span><span class="name">'+t[1]+'</span><span class="gist">'+t[4]+'</span><span class="pg">'+t[3]+'쪽</span></button>';});
-  h+='</div><div class="tocfoot"><div><h3>사례 바로 보기</h3><div class="chips">';
-  CASES.forEach(function(c,i){h+='<button type="button" class="chip" data-case="'+i+'"><small>'+pad(i+1)+'</small>'+c.name+'</button>';});
-  return h+'</div></div><button type="button" class="endbtn" data-go="25"><b>맺음과 토론 질문</b><small>26쪽</small></button></div></div>';},
- ask:function(){return '<div class="sh ask">'+
-  '<div class="readout"><span class="tag">판독</span><span class="sep" aria-hidden="true"></span><p>‘살아 있는가’만으로는 답이 나오지 않는다. ‘누구의 권리이고, 어떤 권리인가’를 물어야 한다.</p></div>'+
-  '<div class="body"><div><h2>몸만 남은 시기의<br>심장 적출을 허용할 것인가?</h2>'+
-  '<p class="sub">허용한다면, 인격 관점에서 나는 이미 없다.</p>'+
-  '<p class="sub">그런데도 가족의 동의를 받는 것은 누구를 위해서이고, 무엇을 지키기 위해서인가?</p></div>'+
-  '<div class="fig" aria-hidden="true">'+
-   '<span style="left:24px;top:76px">몸</span><span style="left:24px;top:144px">인격</span>'+
-   mt('b',76,72,320,'border-radius:12px 0 0 12px')+mt('p',76,140,156,'border-radius:12px 0 0 12px')+mt('dead',235,140,161)+
-   '<div class="band" style="left:226px;top:50px;width:180px;height:136px"></div>'+
-   '<svg width="38" height="38" viewBox="0 0 24 24" style="left:297px;top:65px">'+HEART+'</svg>'+
-   '<span style="left:226px;top:196px;width:180px;text-align:center;color:var(--ink);font-weight:600">몸만 남은 시기</span>'+
-   '<span style="left:24px;top:240px">심장은 뛰지만, 생각은 돌아오지 않는다</span>'+
-  '</div>'+
-  '</div></div></div>';},
- vote:function(){return '<div class="sh vote2"><div class="body"><div>'+
-  '<p class="tagline">체온을 낮춰 신진대사를 모두 멈췄다가 나중에 되살렸다. 멈춰 있는 동안,</p><h2>가사상태의 사이먼은</h2>'+
-  '<div class="vrows">'+
-   '<span class="vname"><i class="sw dead" aria-hidden="true"></i>죽어 있었다</span><div class="vtrack"><div class="vfill dead"></div></div><span class="vnum"></span>'+
-   '<span class="vname"><i class="sw alive" aria-hidden="true"></i>살아 있었다</span><div class="vtrack"><div class="vfill alive"></div></div><span class="vnum"></span>'+
-   '<span class="vname"><i class="sw none" aria-hidden="true"></i>둘 다 아니다</span><div class="vtrack"><div class="vfill none"></div></div><span class="vnum"></span>'+
-  '</div>'+
-  '<div class="vfoot"><button type="button" id="reveal">결과 공개</button><span id="vstat" aria-live="polite"></span></div></div>'+
-  '<div class="qrcard"><div id="qrbox"></div><b>'+VOTE_URL.replace(/^https?:\/\//,'')+'</b><small>QR을 찍거나 주소로 들어가 고른다</small></div>'+
-  '</div></div>';},
- who:function(){return '<div class="sh who">'+
-  '<div class="readout"><span class="tag">판독</span><span class="sep" aria-hidden="true"></span><p>‘되살릴 수 있는가’와 함께 ‘되살리기로 하는가’도 경계를 정한다.</p></div>'+
-  '<div class="bd" aria-hidden="true">'+
-   '<span class="lbl" style="left:0">꺼진 것 · 아직 되살릴 수 있다</span><span class="lbl" style="right:0">부서진 것 · 되살릴 수 없다</span>'+
-   '<div class="tube off" style="left:0;width:638px"></div><div class="tube broken" style="left:656px;right:0"></div>'+
-   '<svg width="56" height="20" viewBox="0 0 56 20"><path d="M4 10h48M4 10l7-6M4 10l7 6M52 10l-7-6M52 10l-7 6" stroke="#14181D" stroke-width="2" stroke-linecap="round" fill="none"/></svg>'+
-   '<div class="marker"></div><span class="mtag">경계</span><div class="bus"></div>'+
-  '</div>'+
-  '<div class="mods">'+
-   '<section class="mod"><span class="n">1</span><h3>국회</h3><p class="dec">범주와 사망 시각</p>'+
-    '<div class="viz" aria-hidden="true">'+mt('b',14,26,96,'border-radius:10px 0 0 10px')+mt('aid',113,26,44)+mt('dead',160,26,60)+
-    '<span style="left:14px;top:56px">살아 있는 사람</span><span style="left:113px;top:56px;font-weight:600">뇌사자</span><span style="left:160px;top:56px">사망한 자</span>'+
-    '<span style="left:113px;top:84px;font-size:15px;font-weight:500">↑ 법이 만든 범주</span></div>'+
+  var h='<div class="ov cards toc"><div class="groups"><span>케이건의 논의</span><span>우리 조의 논의</span></div><div class="stations">';
+  TOC.forEach(function(t,i){h+='<button type="button" class="st ocard" data-go="'+t[2]+'"><span class="thumb" aria-hidden="true">'+THUMBS[i]+'</span><span class="meta"><span>'+t[0]+'</span><span class="pg">'+t[3]+'쪽</span></span><span class="name">'+t[1]+'</span><span class="gist">'+t[4]+'</span></button>';});
+  return h+'</div><button type="button" class="endrow" data-go="25"><span>Ⅴ 맺음과 토론 질문</span><small>26쪽</small></button></div>';},
+ ask:function(){return '<div class="ov text"><h2>몸만 남은 시기의 심장 적출을 허용하시겠습니까?</h2><p>허용한다면, 인격 관점에서 나는 이미 없는데도 가족의 동의를 받는 것은 누구의 무엇을 지키기 위해서일까요?</p></div>';},
+ vote:function(){
+  var h='<div class="ov vote"><div class="vleft"><h2 id="vq">가사상태의 사이먼은</h2><div class="vrows" role="group" aria-labelledby="vq">';
+  ['죽어 있었다','살아 있었다','둘 다 아니다'].forEach(function(t,i){h+='<button type="button" class="vopt" data-vote="'+i+'" aria-pressed="false"><span class="vname">'+t+'</span><span class="vtrack" aria-hidden="true"><span class="vfill f'+i+'"></span></span><span class="vpct"></span></button>';});
+  return h+'</div><p id="vstat" aria-live="polite"></p></div><div class="qrcard"><div id="qrbox"></div><b>'+VOTE_URL.replace(/^https?:\/\//,'')+'</b><small>찍으면 휴대폰에서 이 화면이 열립니다</small></div></div>';},
+ who:function(){return '<div class="ov cards"><div class="cards4">'+
+   '<section class="mod ocard"><div class="ohead"><span class="n">1</span><h3>국회</h3></div><p class="dec">범주와 사망 시각</p>'+
+    '<div class="viz" aria-hidden="true">'+mt('b',12,14,96,'border-radius:10px 0 0 10px')+mt('aid',111,14,46)+mt('dead',160,14,73)+
+    '<span style="left:12px;top:42px">살아 있는 사람</span><span style="left:113px;top:42px;font-weight:600">뇌사자</span><span style="left:162px;top:42px">사망한 자</span>'+
+    '<span style="left:111px;top:64px;font-weight:600">↑ 법이 만든 범주</span></div>'+
     '<p class="mnote">뇌사 판정을 받은 시각이 사망 시각이 된다.</p></section>'+
-   '<section class="mod"><span class="n">2</span><h3>판정 기준</h3><p class="dec">검사 항목과 기다리는 시간</p>'+
-    '<div class="viz" aria-hidden="true"><svg width="232" height="124" viewBox="0 0 232 124" style="position:absolute;left:0;top:0">'+
-    '<path d="M14 62h204" stroke="#D5DAE0" stroke-width="6" stroke-linecap="round"/><path d="M27 62h191" stroke="#14181D" stroke-width="6" stroke-linecap="round"/>'+
-    '<circle cx="27" cy="62" r="8" fill="#fff" stroke="#14181D" stroke-width="2.5"/><circle cx="218" cy="62" r="8" fill="#fff" stroke="#14181D" stroke-width="2.5"/><path d="M66 40v14" stroke="#F08A1C" stroke-width="2"/><circle cx="66" cy="62" r="6" fill="#F08A1C" stroke="#fff" stroke-width="2"/></svg>'+
-    '<span style="left:12px;top:80px;font-weight:600;font-size:18px">75초</span><span style="right:12px;top:80px;font-weight:600;font-size:18px">20분</span>'+
-    '<span style="left:46px;top:16px;font-size:15px;font-weight:500">5분 · 국내 발의안</span></div>'+
+   '<section class="mod ocard"><div class="ohead"><span class="n">2</span><h3>판정 기준</h3></div><p class="dec">검사 항목과 기다리는 시간</p>'+
+    '<div class="viz" aria-hidden="true"><svg width="245" height="92" viewBox="0 0 245 92" style="position:absolute;left:0;top:0">'+
+    '<path d="M27 48h191" stroke="#14181D" stroke-width="5" stroke-linecap="round"/>'+
+    '<circle cx="27" cy="48" r="7" fill="#fff" stroke="#14181D" stroke-width="2.5"/><circle cx="218" cy="48" r="7" fill="#fff" stroke="#14181D" stroke-width="2.5"/><path d="M64 30v10" stroke="#14181D" stroke-width="2"/><circle cx="64" cy="48" r="5" fill="#14181D" stroke="#fff" stroke-width="2"/></svg>'+
+    '<span style="left:12px;top:62px;font-weight:600;font-size:16px">75초</span><span style="right:12px;top:62px;font-weight:600;font-size:16px">20분</span>'+
+    '<span style="left:44px;top:8px;font-weight:500">5분 · 국내 발의안</span></div>'+
     '<p class="mnote">심장이 멈춘 뒤 기다리는 시간은 나라마다 다르다.</p></section>'+
-   '<section class="mod"><span class="n">3</span><h3>뇌사판정위원회</h3><p class="dec">환자 한 사람 한 사람의 판정</p>'+
+   '<section class="mod ocard"><div class="ohead"><span class="n">3</span><h3>뇌사판정위원회</h3></div><p class="dec">환자 한 사람 한 사람의 판정</p>'+
     '<div class="viz" aria-hidden="true">'+
-    '<i class="dot" style="left:16px;background:var(--p2)"></i><i class="dot" style="left:50px;background:var(--p2)"></i><i class="dot" style="left:84px;background:var(--b2)"></i><i class="dot" style="left:118px;background:var(--ink2)"></i><i class="dot" style="left:152px;border:2px dashed var(--mute)"></i><i class="dot" style="left:186px;border:2px dashed var(--mute)"></i>'+
-    '<span style="left:16px;top:62px;font-size:15px;color:var(--p2);font-weight:600">전문의 2명 이상</span><span style="left:16px;top:86px;font-size:15px;color:#B45309;font-weight:600">비의료인 1명 이상</span><span style="right:12px;top:70px;font-weight:600;font-size:18px">4~6명</span></div>'+
+    '<i class="dot" style="left:12px;background:var(--ink)"></i><i class="dot" style="left:42px;background:var(--ink)"></i><i class="dot" style="left:72px;background:#fff;border:2px solid var(--ink)"></i><i class="dot" style="left:102px;background:var(--mute)"></i><i class="dot" style="left:132px;border:2px dashed var(--mute)"></i><i class="dot" style="left:162px;border:2px dashed var(--mute)"></i>'+
+    '<span style="left:12px;top:44px;font-weight:600">● 전문의 2명 이상</span><span style="left:12px;top:66px;font-weight:600">○ 비의료인 1명 이상</span><span style="right:12px;top:52px;font-weight:600;font-size:16px">4~6명</span></div>'+
     '<p class="mnote">출석한 전원이 찬성해야 뇌사로 판정한다.</p></section>'+
-   '<section class="mod"><span class="n">4</span><h3>본인과 가족</h3><p class="dec">연명의료와 기증을 실제로 할지</p>'+
-    '<div class="viz" aria-hidden="true"><div class="seg" style="top:20px"><b>연명의료</b><i>계속</i><i>중단</i></div><div class="seg" style="top:68px"><b>장기 기증</b><i>동의</i><i>거부</i></div></div>'+
+   '<section class="mod ocard"><div class="ohead"><span class="n">4</span><h3>본인과 가족</h3></div><p class="dec">연명의료와 기증을 실제로 할지</p>'+
+    '<div class="viz" aria-hidden="true"><div class="seg" style="top:9px"><b>연명의료</b><i>계속</i><i>중단</i></div><div class="seg" style="top:49px"><b>장기 기증</b><i>동의</i><i>거부</i></div></div>'+
     '<p class="mnote">본인이 기증에 동의해도 가족이 거부하면 적출할 수 없다.</p></section>'+
   '</div></div>';},
  qs:function(){
@@ -615,15 +590,16 @@ var SHEETS={
          ['ic-sw','결정의 주인','되살리지 않기로 한 결정이 죽음을 확정한다면, 그 결정은 누구의 것이어야 하는가?'],
          ['ic-dead','시신과 육체 관점','시신을 존중하고 장례를 치르는 관행은 육체 관점을 지지하는 근거가 되는가?'],
          ['ic-off','활동 없는 삶','사이먼이 가사상태 동안 살아 있었다면, 살아 있다는 것에는 어떤 활동도 필요 없다는 결론에 동의하는가?']];
-  var h='<div class="sh qs"><div class="readout"><span class="tag">맺음</span><span class="sep" aria-hidden="true"></span><p>죽음에 신비가 없다는 말이 맞더라도, 신비가 사라진 자리에는 현실과 결정이 남는다.</p></div><div class="qgrid">';
-  Q.forEach(function(q,i){h+='<section class="q"><span class="num">'+(i+1)+'</span><span class="key"><i class="'+q[0]+'" aria-hidden="true"></i>'+q[1]+'</span><p>'+q[2]+'</p></section>';});
+  var h='<div class="ov cards"><div class="cards4">';
+  Q.forEach(function(q,i){h+='<section class="q ocard"><span class="num">'+(i+1)+'</span><span class="key"><i class="'+q[0]+'" aria-hidden="true"></i>'+q[1]+'</span><p>'+q[2]+'</p></section>';});
   return h+'</div></div>';}
 };
 
 /* ---------- rendering ---------- */
 function $(id){return document.getElementById(id);}
 var ROOT=$('stage');
-var st={},idx=0,manual=false,tocOpen=false,scanTok=0,lastKey='',lastTube='',sheetKey=null,STATIC=false;
+var st={},idx=0,manual=false,tocOpen=false,scanTok=0,lastKey='',lastTube='',ovKey=null,STATIC=false,phoneDeck=false;
+var PHONE=window.matchMedia?window.matchMedia('(orientation: portrait) and (max-width: 700px)'):{matches:false};
 function isLocked(s){return s.s==='off'&&st.def==='capacity'&&s.need>st.means;}
 function tubeHTML(list,kind,y){
   var h='',cut=false;
@@ -660,8 +636,6 @@ function drawCase(){
   c.marks.forEach(function(m){h+='<span class="abs mark'+(lockAt!==null&&m[0]>=lockAt?' unreach':'')+'" data-view="'+(m[2]||'')+'" style="left:'+(m[0]-8)+'px">★ '+m[1]+'</span>';});
   $('marks').innerHTML=h;
   $('lg-aid').hidden=!hasAid;$('lg-lock').hidden=(lockAt===null);
-  $('caseno').innerHTML=pad(st.c+1)+' <small>/ '+pad(CASES.length)+'</small>';
-  $('casename').textContent=c.name;
 }
 function probeX(){var c=CASES[st.c];return c.probes[st.probe]||c.probes.main;}
 function runScan(done){
@@ -693,14 +667,17 @@ function paintVerdict(v,pending){
   }
   $('basis').textContent=st.view?(st.view==='person'?'인격 관점':'육체 관점'):'';
 }
-function showSheet(k){
-  if(k===sheetKey)return;
-  sheetKey=k;
-  var sh=$('sheet');
-  sh.innerHTML=k?SHEETS[k]():'';
-  sh.classList.toggle('show',!!k);
-  $('main').inert=!!k;$('main').classList.toggle('hid',!!k);
-  if(k==='vote'){drawQR();paintVote();voteStart();}else voteStop();
+function phoneCheck(){
+  var on=ovKey==='vote'&&!phoneDeck&&!STATIC&&PHONE.matches;
+  $('phone').hidden=!on;document.body.classList.toggle('phonevote',on);
+}
+function showOverlay(k){
+  if(k!==ovKey){
+    ovKey=k;var o=$('overlay');
+    o.innerHTML=k?OVERLAYS[k]():'';o.classList.toggle('show',!!k);
+    if(k==='vote'){drawQR();paintVote();voteStart();}else voteStop();
+  }
+  phoneCheck();
 }
 function render(){
   var step=STEPS[idx],c=CASES[st.c],key=st.c+'|'+st.probe,tkey=st.c+'|'+st.def+'|'+st.means;
@@ -709,7 +686,11 @@ function render(){
   $('sec').textContent=step.sec;$('title').textContent=step.title;
   $('count').textContent=pad(idx+1)+' / '+STEPS.length;
   $('prev').setAttribute('aria-disabled',idx===0);$('next').setAttribute('aria-disabled',idx===STEPS.length-1);
-  showSheet(tocOpen?'toc':(!manual&&step.sheet?step.sheet:null));
+  showOverlay(tocOpen?'toc':(!manual&&step.ov?step.ov:null));
+  var idle=!!st.idle&&!manual;
+  $('lower').classList.toggle('idle',idle);
+  if(idle){$('caseno').textContent='—';$('casename').textContent='';}
+  else{$('caseno').innerHTML=pad(st.c+1)+' <small>/ '+pad(CASES.length)+'</small>';$('casename').textContent=c.name;}
   var opts=ROOT.querySelectorAll('.opt');
   for(var i=0;i<opts.length;i++){var o=opts[i];o.setAttribute('aria-pressed',String(st[o.dataset.k])===o.dataset.v);}
   var cols=ROOT.querySelectorAll('.col');
@@ -735,7 +716,7 @@ function render(){
   $('probe').textContent='▲ 판정 시점'+(c.probeLabel?' '+c.probeLabel:'');
   var v=verdict(st);
   var ct=$('captext'),txt=manual?genCap(v):step.cap;
-  $('captag').textContent=manual?'자유 조작':'판독';
+  $('captag').textContent=manual?'자유 조작':step.tag;
   if(ct.textContent!==txt){
     ct.textContent=txt;ct.style.fontSize='24px';
     var fs=24;while(ct.scrollHeight>52&&fs>17){fs-=1;ct.style.fontSize=fs+'px';}
@@ -748,46 +729,90 @@ function render(){
 function go(n){
   n=Math.max(0,Math.min(STEPS.length-1,n));
   idx=n;manual=false;tocOpen=false;
-  var s=STEPS[n];st={c:s.c,view:s.view,def:s.def,means:s.means,probe:s.probe,level:s.level,intu:s.intu,again:s.again};
+  var s=STEPS[n];st={c:s.c,view:s.view,def:s.def,means:s.means,probe:s.probe,level:s.level,intu:s.intu,again:s.again,idle:s.idle};
   render();
+  if(!STATIC&&history.replaceState){try{history.replaceState(null,'','#'+(n+1));}catch(err){}}
 }
 function setCtl(k,v){
-  manual=true;
+  manual=true;st.idle=false;
   if(k==='means'){st.means=Number(v);st.def='capacity';}else st[k]=v;
   st.level=4;st.intu=true;render();
 }
-function freeCase(i){manual=true;tocOpen=false;st.c=(i+CASES.length)%CASES.length;st.probe='main';st.level=4;st.intu=true;render();}
+function freeCase(i){manual=true;tocOpen=false;st.idle=false;st.c=(i+CASES.length)%CASES.length;st.probe='main';st.level=4;st.intu=true;render();}
 
-/* ---------- vote ---------- */
-var V={counts:null,reveal:false,timer:null,err:false};
+/* ---------- vote: pick a bar and the results show; the presenter can show them with Enter ---------- */
+var V={counts:null,presenter:false,timer:null,err:false,busy:false,coolUntil:0,tick:null,msg:'',msgErr:false,me:{id:null,choice:null,round:null}};
 function rpc(fn,body){
   return fetch(API+fn,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
 }
+function uuid(){
+  if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
+  var b=new Uint8Array(16);crypto.getRandomValues(b);b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;
+  var h=[];for(var i=0;i<16;i++)h.push((b[i]+256).toString(16).slice(1));
+  return h.slice(0,4).join('')+'-'+h.slice(4,6).join('')+'-'+h.slice(6,8).join('')+'-'+h.slice(8,10).join('')+'-'+h.slice(10).join('');
+}
+function vload(){
+  try{var s=JSON.parse(localStorage.getItem(VSTORE)||'null');if(s&&s.id){V.me.id=s.id;V.me.choice=(s.choice===0||s.choice===1||s.choice===2)?s.choice:null;V.me.round=s.round||null;}}catch(e){}
+  if(!V.me.id)V.me.id=uuid();
+}
+function vsave(){try{localStorage.setItem(VSTORE,JSON.stringify(V.me));}catch(e){}}
+function coolLeft(){return Math.max(0,Math.ceil((V.coolUntil-Date.now())/1000));}
 function paintVote(){
-  var box=ROOT.querySelector('.vote2');if(!box)return;
-  var c=V.counts||[0,0,0],tot=c[0]+c[1]+c[2];
-  var fills=box.querySelectorAll('.vfill'),nums=box.querySelectorAll('.vnum');
-  for(var i=0;i<3;i++){
-    var share=tot?c[i]/tot:0;
-    fills[i].style.transform='scaleX('+(V.reveal?share:0)+')';
-    nums[i].innerHTML=V.reveal?(c[i]+'표<small>'+Math.round(share*100)+'%</small>'):'–';
-  }
-  $('reveal').textContent=V.reveal?'결과 숨기기':'결과 공개';
-  $('vstat').textContent=STATIC?'':V.err?'집계 서버에 연결하지 못했다. 손을 들어 답을 모은다.':(V.counts?('지금까지 '+tot+'명 참여'):'집계를 불러오는 중');
+  var c=V.counts||[0,0,0],tot=c[0]+c[1]+c[2],show=!STATIC&&!!V.counts&&(V.me.choice!==null||V.presenter),cooling=coolLeft()>0;
+  [ROOT.querySelectorAll('#overlay .vopt'),document.querySelectorAll('#phone .popt')].forEach(function(list){
+    for(var i=0;i<list.length;i++){
+      var el=list[i],share=tot?c[i]/tot:0;
+      el.setAttribute('aria-pressed',String(!STATIC&&V.me.choice===i));
+      if(cooling||V.busy)el.setAttribute('aria-disabled','true');else el.removeAttribute('aria-disabled');
+      el.querySelector('.vfill').style.transform='scaleX('+(show?share:0)+')';
+      el.querySelector('.vpct,.pp').textContent=show?Math.round(share*100)+'%':'';
+    }
+  });
+  $('phone').classList.toggle('shown',show);
+  var vs=$('vstat');
+  if(vs)vs.textContent=STATIC?'':V.err?'집계 서버에 연결하지 못했습니다. 손을 들어 답해 주세요.':(V.counts?'지금까지 '+tot+'명 참여':'');
+  var ps=$('pstat');ps.className=V.msgErr?'err':'';
+  ps.textContent=V.msg||(V.err?'집계 서버에 연결하지 못했습니다. 잠시 뒤 다시 눌러 주세요.':V.me.choice===null?'하나를 고르면 지금까지의 결과가 보입니다.':
+    (V.counts?'지금까지 '+tot+'명 참여. '+(cooling?coolLeft()+'초 뒤에 답을 바꿀 수 있습니다.':'다른 답을 누르면 바꿀 수 있습니다.'):''));
+}
+function fresh(c){
+  V.counts=c;V.err=false;
+  if(V.me.choice!==null&&V.me.round!==null&&c[3]!==V.me.round){V.me.choice=null;V.me.round=null;vsave();V.msg='투표가 새로 시작됐습니다. 다시 골라 주세요.';V.msgErr=false;}
+  paintVote();
 }
 function pollVote(){
-  if(STATIC||document.hidden)return;
-  rpc('vote_counts').then(function(c){V.counts=c;V.err=false;paintVote();}).catch(function(){V.err=true;paintVote();});
+  if(STATIC||document.hidden||V.busy)return;
+  rpc('vote_counts').then(fresh).catch(function(){V.err=true;paintVote();});
 }
 function voteStart(){if(V.timer||STATIC)return;pollVote();V.timer=setInterval(pollVote,2500);}
 function voteStop(){if(V.timer){clearInterval(V.timer);V.timer=null;}}
+function cool(){
+  V.coolUntil=Date.now()+3200;clearInterval(V.tick);
+  V.tick=setInterval(function(){paintVote();if(coolLeft()===0){clearInterval(V.tick);V.tick=null;paintVote();}},500);
+}
+function choose(i){
+  if(STATIC||V.busy||i===V.me.choice)return;
+  if(coolLeft()>0){paintVote();return;}
+  var before=V.me.choice;
+  V.busy=true;V.me.choice=i;V.msg='보내는 중입니다.';V.msgErr=false;paintVote();
+  rpc('cast_vote',{p_voter:V.me.id,p_choice:i}).then(function(res){
+    V.busy=false;if(res&&res.counts)V.counts=res.counts;V.err=false;
+    if(res&&res.ok){V.me.round=V.counts?V.counts[3]:null;vsave();V.msg='';cool();}
+    else{
+      V.me.choice=before;
+      if(res&&res.reason==='wait'){V.msg='';cool();}
+      else{V.msg='지금은 표를 더 받을 수 없습니다.';V.msgErr=true;}
+    }
+    paintVote();
+  }).catch(function(){V.busy=false;V.me.choice=before;V.msg='전송하지 못했습니다. 연결을 확인하고 다시 눌러 주세요.';V.msgErr=true;paintVote();});
+}
 function drawQR(){
   var box=$('qrbox');if(!box||!window.qrcode)return;
   var q=window.qrcode(0,'M');q.addData(VOTE_URL);q.make();
   var n=q.getModuleCount(),d='';
   for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))d+='M'+k+' '+r+'h1v1h-1z';
-  box.innerHTML='<svg viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" role="img" aria-label="투표 페이지로 가는 QR 코드" shape-rendering="crispEdges"><path d="'+d+'" fill="#14181D"/></svg>';
+  box.innerHTML='<svg viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" role="img" aria-label="이 화면으로 오는 QR 코드" shape-rendering="crispEdges"><path d="'+d+'" fill="#14181D"/></svg>';
 }
 var dlg=$('resetdlg');
 function openReset(msg){$('pinerr').textContent=msg;dlg.returnValue='';dlg.showModal();}
@@ -796,9 +821,9 @@ dlg.addEventListener('close',function(){
   if(dlg.returnValue!=='ok')return;
   var pin=$('pin').value;$('pin').value='';
   rpc('reset_votes',{p_pin:pin}).then(function(ok){
-    if(ok){V.counts=[0,0,0];V.reveal=false;$('pinerr').textContent='';paintVote();}
-    else openReset('PIN이 맞지 않는다. 다시 입력한다.');
-  }).catch(function(){openReset('서버에 연결하지 못했다. 잠시 뒤 다시 시도한다.');});
+    if(ok){V.presenter=false;$('pinerr').textContent='';pollVote();}
+    else openReset('PIN이 맞지 않습니다. 다시 입력해 주세요.');
+  }).catch(function(){openReset('서버에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');});
 });
 
 /* ---------- download and print ---------- */
@@ -831,11 +856,15 @@ $('prev').addEventListener('click',function(){go(idx-1);});
 $('casenext').addEventListener('click',function(){freeCase(st.c+1);});
 $('caseprev').addEventListener('click',function(){freeCase(st.c-1);});
 $('casetoc').addEventListener('click',function(){tocOpen=!tocOpen;render();});
-$('sheet').addEventListener('click',function(e){
+$('overlay').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
   if(b.dataset.go!==undefined)go(Number(b.dataset.go));
-  else if(b.dataset['case']!==undefined)freeCase(Number(b.dataset['case']));
-  else if(b.id==='reveal'){V.reveal=!V.reveal;paintVote();}
+  else if(b.dataset.vote!==undefined)choose(Number(b.dataset.vote));
+});
+$('phone').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.vote!==undefined)choose(Number(b.dataset.vote));
+  else if(b.id==='pdeck'){phoneDeck=true;phoneCheck();}
 });
 $('controls').addEventListener('click',function(e){var b=e.target.closest('.opt');if(b)setCtl(b.dataset.k,b.dataset.v);});
 var SECSTART={'1':2,'2':7,'3':9,'4':20};
@@ -846,8 +875,8 @@ document.addEventListener('keydown',function(e){
   if(e.metaKey||e.ctrlKey||e.altKey)return;
   if(e.target&&e.target.closest&&e.target.closest('input,dialog,#dlmenu'))return;
   var k=e.key,cd=e.code||'';
-  if(sheetKey==='vote'&&k==='Enter'&&e.keyCode!==229){e.preventDefault();V.reveal=!V.reveal;paintVote();}
-  else if(sheetKey==='vote'&&e.shiftKey&&(cd==='KeyR'||k==='R'||k==='r')){e.preventDefault();openReset('');}
+  if(ovKey==='vote'&&k==='Enter'&&e.keyCode!==229&&!(e.target.closest&&e.target.closest('button'))){e.preventDefault();V.presenter=!V.presenter;paintVote();}
+  else if(ovKey==='vote'&&e.shiftKey&&(cd==='KeyR'||k==='R'||k==='r')){e.preventDefault();openReset('');}
   else if(k==='ArrowRight'||k==='PageDown'||k===' '){e.preventDefault();if(manual||tocOpen)go(idx);else go(idx+1);}
   else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();if(manual||tocOpen)go(idx);else go(idx-1);}
   else if(cd==='KeyM'||k==='m'||k==='M'){tocOpen=!tocOpen;render();}
@@ -859,17 +888,19 @@ document.addEventListener('keydown',function(e){
   else if(cd==='KeyF'||k==='f'||k==='F'){try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(function(){});}catch(err){}}
 });
 var tx=null;
-document.addEventListener('touchstart',function(e){tx=e.touches.length===1?e.touches[0].clientX:null;},{passive:true});
+document.addEventListener('touchstart',function(e){tx=(e.touches.length===1&&$('phone').hidden)?e.touches[0].clientX:null;},{passive:true});
 document.addEventListener('touchend',function(e){
   if(tx===null||(e.target.closest&&e.target.closest('dialog,#dlmenu')))return;
   var dx=e.changedTouches[0].clientX-tx;tx=null;
   if(Math.abs(dx)>60)go(idx+(dx<0?1:-1));
 },{passive:true});
-document.addEventListener('visibilitychange',function(){if(!document.hidden&&sheetKey==='vote')pollVote();});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&ovKey==='vote')pollVote();});
 function fit(){var s=Math.min(window.innerWidth/1280,window.innerHeight/720);$('stage').style.transform='scale('+s+')';}
-window.addEventListener('resize',fit);
-window.__deck={go:go,count:STEPS.length,buildPrint:buildPrint,setStatic:function(v){STATIC=v;document.body.classList.toggle('static',v);}};
-fit();go(0);
+window.addEventListener('resize',function(){fit();phoneCheck();});
+window.__deck={go:go,count:STEPS.length,buildPrint:buildPrint,setStatic:function(v){STATIC=v;document.body.classList.toggle('static',v);phoneCheck();},vote:V,paintVote:paintVote};
+function fromHash(){var m=/^#(\d{1,2})$/.exec(location.hash);if(m){var n=Number(m[1])-1;if(n>=0&&n<STEPS.length)return n;}return null;}
+window.addEventListener('hashchange',function(){var h=fromHash();if(h!==null&&h!==idx)go(h);});
+vload();fit();var h0=fromHash();go(h0===null?0:h0);
 })();
 </script>
 </body>
