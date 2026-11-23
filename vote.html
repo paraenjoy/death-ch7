@@ -21,7 +21,7 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;back
 main{width:100%;max-width:520px;padding:28px 20px 28px;display:flex;flex-direction:column}
 .kicker{margin:0;font-size:.9rem;color:var(--ink2)}
 h1{margin:8px 0 0;font-size:clamp(2rem,1.5rem + 2.6vw,2.75rem);line-height:1.2;font-weight:700;letter-spacing:-.02em;word-break:keep-all}
-.desc{margin:12px 0 0;font-size:1.05rem;line-height:1.6;color:var(--ink2);word-break:keep-all}
+.desc{margin:10px 0 0;font-size:1.05rem;line-height:1.6;color:var(--ink2);word-break:keep-all}
 .opts{display:grid;gap:12px;margin-top:24px}
 .opt{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;min-block-size:76px;padding:14px 18px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel);color:inherit;font:inherit;font-size:1.3rem;font-weight:600;text-align:left;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .opt>span,.opt>i{position:relative}
@@ -50,14 +50,14 @@ h1{margin:8px 0 0;font-size:clamp(2rem,1.5rem + 2.6vw,2.75rem);line-height:1.2;f
 <body>
 <main>
   <p class="kicker">7장 죽음의 본질에 관하여</p>
+  <p class="desc">체온을 낮춰 신진대사를 모두 멈췄다가 나중에 되살렸다. 멈춰 있는 동안,</p>
   <h1 id="q">가사상태의 사이먼은</h1>
-  <p class="desc">체온을 낮춰 신진대사를 모두 멈췄다가 나중에 다시 되살렸다. 멈춰 있는 동안 그는 죽은 것인가?</p>
   <div class="opts" role="group" aria-labelledby="q">
-    <button type="button" class="opt" data-i="0" aria-pressed="false"><span class="fill dead" aria-hidden="true"></span><i class="sw dead" aria-hidden="true"></i><span class="lbl">죽었다<b class="mine">내 답</b></span><span class="num"></span></button>
+    <button type="button" class="opt" data-i="0" aria-pressed="false"><span class="fill dead" aria-hidden="true"></span><i class="sw dead" aria-hidden="true"></i><span class="lbl">죽어 있었다<b class="mine">내 답</b></span><span class="num"></span></button>
     <button type="button" class="opt" data-i="1" aria-pressed="false"><span class="fill alive" aria-hidden="true"></span><i class="sw alive" aria-hidden="true"></i><span class="lbl">살아 있었다<b class="mine">내 답</b></span><span class="num"></span></button>
     <button type="button" class="opt" data-i="2" aria-pressed="false"><span class="fill none" aria-hidden="true"></span><i class="sw none" aria-hidden="true"></i><span class="lbl">둘 다 아니다<b class="mine">내 답</b></span><span class="num"></span></button>
   </div>
-  <p id="status" role="status">하나를 고르면 지금까지의 결과가 보인다.</p>
+  <p id="status" role="status">하나를 고르면 지금까지의 결과가 보입니다.</p>
   <p class="foot"><a href="./">발표 자료 보기</a></p>
 </main>
 <script>
@@ -98,7 +98,7 @@ function paint(){
 function summary(){
   if(me.choice===null||!counts)return;
   var left=Math.ceil((coolUntil-Date.now())/1000),tot=counts[0]+counts[1]+counts[2];
-  say('지금까지 '+tot+'명 참여. '+(left>0?(left+'초 뒤에 답을 바꿀 수 있다.'):'다른 답을 누르면 바꿀 수 있다.'));
+  say('지금까지 '+tot+'명 참여. '+(left>0?(left+'초 뒤에 답을 바꿀 수 있습니다.'):'다른 답을 누르면 바꿀 수 있습니다.'));
 }
 function cool(){
   coolUntil=Date.now()+3200;
@@ -113,7 +113,7 @@ function fresh(c){
   counts=c;
   if(me.choice!==null&&me.round!==null&&c[3]!==me.round){
     me.choice=null;me.round=null;save();paint();
-    say('투표가 새로 시작됐다. 다시 고른다.');
+    say('투표가 새로 시작됐습니다. 다시 골라 주세요.');
     return false;
   }
   paint();summary();return true;
@@ -127,24 +127,24 @@ function choose(i){
   if(busy||i===me.choice)return;
   if(Date.now()<coolUntil){summary();return;}
   var before=me.choice;
-  busy=true;me.choice=i;paint();say('보내는 중');
+  busy=true;me.choice=i;paint();say('보내는 중입니다.');
   rpc('cast_vote',{p_voter:me.id,p_choice:i}).then(function(res){
     busy=false;counts=res.counts||counts;
     if(res.ok){me.round=counts?counts[3]:null;save();cool();paint();summary();startPoll();}
     else{
       me.choice=before;paint();
-      if(res.reason==='wait'){cool();say('방금 답을 바꿨다. 3초 뒤에 다시 누른다.');}
-      else say('지금은 표를 더 받지 못한다.',true);
+      if(res.reason==='wait'){cool();say('방금 답을 바꿨습니다. 3초 뒤에 다시 눌러 주세요.');}
+      else say('지금은 표를 더 받을 수 없습니다.',true);
     }
   }).catch(function(){
     busy=false;me.choice=before;paint();
-    say('전송하지 못했다. 연결을 확인하고 다시 누른다.',true);
+    say('전송하지 못했습니다. 연결을 확인하고 다시 눌러 주세요.',true);
   });
 }
 for(var i=0;i<3;i++)opts[i].addEventListener('click',function(){choose(Number(this.dataset.i));});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)poll();});
 load();paint();
-if(me.choice!==null){rpc('vote_counts').then(function(c){if(fresh(c))startPoll();}).catch(function(){say('결과를 불러오지 못했다. 잠시 뒤 다시 연다.',true);});}
+if(me.choice!==null){rpc('vote_counts').then(function(c){if(fresh(c))startPoll();}).catch(function(){say('결과를 불러오지 못했습니다. 잠시 뒤 다시 열어 주세요.',true);});}
 })();
 </script>
 </body>
