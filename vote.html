@@ -37,9 +37,10 @@ h1{margin:8px 0 0;font-size:clamp(2rem,1.5rem + 2.6vw,2.75rem);line-height:1.2;f
 .fill.none{background:repeating-linear-gradient(115deg,#fff 0 6px,#8B95A1 6px 10px)}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1rem;font-weight:500;white-space:nowrap}
 .num small{font-size:.8rem;color:var(--ink2);margin-left:6px}
-.mine{display:none;margin-left:8px;padding:1px 8px;border-radius:9px;background:var(--ink);color:#fff;font-size:.75rem;font-weight:500;vertical-align:middle}
+.lbl{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-inline-size:0}
+.mine{display:none;padding:1px 8px;border-radius:9px;background:var(--ink);color:#fff;font-size:.75rem;font-weight:500}
 .opt[aria-pressed="true"] .mine{display:inline-block}
-#status{min-height:1.6em;margin:18px 0 0;font-size:1rem;line-height:1.6;color:var(--ink2)}
+#status{min-height:1.6em;margin:18px 0 0;font-size:1rem;line-height:1.6;color:var(--ink2);word-break:keep-all}
 #status.err{color:#B42318}
 .foot{margin:auto 0 0;padding-top:32px;font-size:.95rem}
 .foot a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-weight:500}
@@ -52,9 +53,9 @@ h1{margin:8px 0 0;font-size:clamp(2rem,1.5rem + 2.6vw,2.75rem);line-height:1.2;f
   <h1 id="q">가사상태의 사이먼은</h1>
   <p class="desc">체온을 낮춰 신진대사를 모두 멈췄다가 나중에 다시 되살렸다. 멈춰 있는 동안 그는 죽은 것인가?</p>
   <div class="opts" role="group" aria-labelledby="q">
-    <button type="button" class="opt" data-i="0" aria-pressed="false"><span class="fill dead" aria-hidden="true"></span><i class="sw dead" aria-hidden="true"></i><span>죽었다<b class="mine">내 답</b></span><span class="num"></span></button>
-    <button type="button" class="opt" data-i="1" aria-pressed="false"><span class="fill alive" aria-hidden="true"></span><i class="sw alive" aria-hidden="true"></i><span>살아 있었다<b class="mine">내 답</b></span><span class="num"></span></button>
-    <button type="button" class="opt" data-i="2" aria-pressed="false"><span class="fill none" aria-hidden="true"></span><i class="sw none" aria-hidden="true"></i><span>둘 다 아니다<b class="mine">내 답</b></span><span class="num"></span></button>
+    <button type="button" class="opt" data-i="0" aria-pressed="false"><span class="fill dead" aria-hidden="true"></span><i class="sw dead" aria-hidden="true"></i><span class="lbl">죽었다<b class="mine">내 답</b></span><span class="num"></span></button>
+    <button type="button" class="opt" data-i="1" aria-pressed="false"><span class="fill alive" aria-hidden="true"></span><i class="sw alive" aria-hidden="true"></i><span class="lbl">살아 있었다<b class="mine">내 답</b></span><span class="num"></span></button>
+    <button type="button" class="opt" data-i="2" aria-pressed="false"><span class="fill none" aria-hidden="true"></span><i class="sw none" aria-hidden="true"></i><span class="lbl">둘 다 아니다<b class="mine">내 답</b></span><span class="num"></span></button>
   </div>
   <p id="status" role="status">하나를 고르면 지금까지의 결과가 보인다.</p>
   <p class="foot"><a href="./">발표 자료 보기</a></p>
