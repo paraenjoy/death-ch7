@@ -184,13 +184,13 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .st .pg{font-family:var(--mono);font-size:14px}
 .st .name{margin-top:1px;font-size:19px;line-height:1.25;font-weight:600;word-break:keep-all;text-wrap:balance}
 .st .gist{margin-top:3px;font-size:14px;line-height:1.3;color:var(--ink2);word-break:keep-all;text-wrap:balance}
-.tocfoot{display:grid;grid-template-columns:minmax(0,1fr) 214px;gap:14px;margin-top:10px}
-.chips{display:flex;flex-wrap:wrap;align-content:center;align-items:center;gap:6px 6px}
-.chips .lab2{margin-right:4px;font-size:14px;color:var(--mon-ink2)}
-.chip{min-height:30px;padding:3px 10px;border-radius:15px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);color:var(--mon-ink);font-size:14px;font-weight:500;white-space:nowrap}
-.chip small{font-family:var(--mono);font-size:12px;color:var(--mon-ink2);margin-right:5px}
-.endbtn{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:66px;padding:8px 16px;border-radius:12px;border:0;background:var(--mon-ink);color:var(--ink);text-align:left;font:inherit}
-.endbtn b{font-size:18px;font-weight:600}
+.tocfoot{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:auto 64px;gap:8px 14px;margin-top:12px}
+.flab{grid-column:1/4;font-size:15px;color:var(--mon-ink2);padding-bottom:6px;border-bottom:2px solid rgba(255,255,255,.35)}
+.cases{grid-column:1/4;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
+.chip{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.26);background:rgba(255,255,255,.06);color:var(--mon-ink);font:inherit;font-size:13px;line-height:1.25;font-weight:500;text-align:left;word-break:keep-all;cursor:pointer}
+.chip small{font-family:var(--mono);font-size:12px;color:var(--mon-ink2)}
+.endbtn{grid-column:4;grid-row:1/3;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:10px 16px;border-radius:12px;border:0;background:var(--bg);color:var(--ink);text-align:left;font:inherit;cursor:pointer}
+.endbtn b{font-size:19px;line-height:1.25;font-weight:600;word-break:keep-all}
 .endbtn small{font-family:var(--mono);font-size:13px;color:var(--ink2)}
 .endbtn:hover{box-shadow:0 0 0 2px var(--lamp)}
 
@@ -203,9 +203,12 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .fig span{position:absolute;font-size:16px;color:var(--ink2);white-space:nowrap}
 .fig .band{position:absolute;border:1.5px dashed var(--ink);border-radius:12px}
 .fig svg{position:absolute}
+.fig .beat{transform-origin:50% 55%;animation:beat 1.1s ease-in-out infinite}
+@keyframes beat{0%,40%,100%{transform:scale(1)}10%{transform:scale(1.13)}22%{transform:scale(1.02)}30%{transform:scale(1.08)}}
+.static .fig .beat{animation:none}
 
 /* vote: each row is a radio choice; results appear once you pick one */
-.ov.vote{flex-direction:row;align-items:center;gap:44px;padding:0 40px 0 56px}
+.ov.vote{flex-direction:row;align-items:center;gap:48px;padding:0 28px 0 56px}
 .vleft{flex:1;min-width:0}
 .vrows{display:flex;flex-direction:column;gap:10px;margin-top:18px}
 .vopt{display:grid;grid-template-columns:28px 172px minmax(0,1fr) 76px;align-items:center;gap:16px;min-height:50px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
@@ -215,17 +218,19 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .vopt[aria-pressed="true"] .vdot,.popt[aria-pressed="true"] .vdot{background:var(--c);box-shadow:inset 0 0 0 5px var(--mon),0 0 0 2.5px var(--c)}
 .vname{font-size:26px;font-weight:600;white-space:nowrap}
 .vtrack{position:relative;display:block;height:36px;border-radius:8px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3);overflow:hidden}
-.vfill{position:absolute;inset:0;transform-origin:left center;transform:scaleX(0);transition:transform .7s cubic-bezier(.3,.7,.2,1)}
+.vfill{position:absolute;left:0;top:0;bottom:0;width:0;overflow:hidden;transition:width .9s cubic-bezier(.3,.7,.2,1)}
+.vfill::after{content:'';position:absolute;top:0;bottom:0;left:-120px;width:120px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.38),rgba(255,255,255,0));animation:flow 3.2s linear infinite}
+.vfill.f1::after{animation-delay:.35s}.vfill.f2::after{animation-delay:.7s}
+@keyframes flow{0%{transform:translateX(0)}60%,100%{transform:translateX(760px)}}
+.static .vfill::after{display:none}
 .vfill.f0{background:linear-gradient(180deg,var(--b1),var(--b2))}
 .vfill.f1{background:linear-gradient(180deg,var(--p1),var(--p2))}
 .vfill.f2{background:linear-gradient(180deg,#C9CFD7,#9AA3AE)}
 .vpct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;text-align:right}
 #vstat{min-height:24px;margin:14px 0 0;font-size:17px;color:var(--mon-ink2)}
-.qrcard{flex:none;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
-#qrbox{width:208px;height:208px;border-radius:10px;background:#fff;overflow:hidden}
+#vstat.err{color:#FCA5A5}
+#qrbox{flex:none;align-self:center;width:272px;height:272px;border-radius:12px;background:#fff;overflow:hidden}
 #qrbox svg{display:block;width:100%;height:100%}
-.qrcard b{font-family:var(--mono);font-size:18px;font-weight:500;white-space:nowrap}
-.qrcard small{font-size:14px;color:var(--mon-ink2)}
 
 /* who decides and questions: four cards on the monitor */
 .cards4{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
@@ -297,7 +302,7 @@ dialog .row button[value="ok"]{background:var(--ink);border-color:var(--ink);col
 @media (orientation:portrait) and (max-width:700px){#rot{display:block}}
 #print{display:none}
 body.static *,#print *{animation:none!important;transition:none!important}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 @media print{
   @page{size:1280px 720px;margin:0}
   html,body{height:auto;overflow:visible;background:#fff}
@@ -598,15 +603,15 @@ var OVERLAYS={
  toc:function(){
   var h='<div class="ov toc"><div class="groups"><span>케이건의 논의</span><span>우리 조의 논의</span></div><div class="stations">';
   TOC.forEach(function(t,i){h+='<button type="button" class="st ocard" data-go="'+t[2]+'"><span class="thumb" aria-hidden="true"><span class="tin">'+THUMBS[i]+'</span></span><span class="meta"><span>'+t[0]+'</span><span class="pg">'+t[3]+'쪽</span></span><span class="name">'+t[1]+'</span><span class="gist">'+t[4]+'</span></button>';});
-  h+='</div><div class="tocfoot"><div class="chips"><span class="lab2">사례 바로 보기</span>';
-  CASES.forEach(function(c,i){h+='<button type="button" class="chip" data-case="'+i+'"><small>'+pad(i+1)+'</small>'+c.name+'</button>';});
+  h+='</div><div class="tocfoot"><span class="flab">사례 바로 보기</span><div class="cases">';
+  CASES.forEach(function(c,i){h+='<button type="button" class="chip" data-case="'+i+'"><small>'+pad(i+1)+'</small><span>'+c.name+'</span></button>';});
   return h+'</div><button type="button" class="endbtn" data-go="25"><b>Ⅴ 맺음과 토론 질문</b><small>26쪽</small></button></div></div>';},
  ask:function(){return '<div class="ov ask"><div class="atext"><h2>몸만 남은 시기의<br>심장 적출을 허용하시겠습니까?</h2><p>허용한다면, 인격 관점에서 나는 이미 없는데도 가족의 동의를 받는 것은 누구의 무엇을 지키기 위해서일까요?</p></div>'+
   '<div class="fig ocard" aria-hidden="true">'+
    '<span style="left:22px;top:60px">몸</span><span style="left:22px;top:120px">인격</span>'+
    mt('b',74,58,306,'border-radius:11px 0 0 11px')+mt('p',74,118,148,'border-radius:11px 0 0 11px')+mt('dead',225,118,155)+
    '<div class="band" style="left:216px;top:36px;width:172px;height:122px"></div>'+
-   '<svg width="34" height="34" viewBox="0 0 24 24" style="left:285px;top:52px">'+HEART+'</svg>'+
+   '<svg class="beat" width="34" height="34" viewBox="0 0 24 24" style="left:285px;top:52px">'+HEART+'</svg>'+
    '<span style="left:216px;top:166px;width:172px;text-align:center;color:var(--ink);font-weight:600">몸만 남은 시기</span>'+
    '<span style="left:22px;top:204px;font-size:15px">심장은 뛰지만, 생각은 돌아오지 않는다</span>'+
   '</div></div>';},
@@ -614,7 +619,7 @@ var OVERLAYS={
   var h='<div class="ov vote"><div class="vleft"><h2 id="vq">가사상태의 사이먼은</h2><div class="vrows" role="group" aria-labelledby="vq">';
   var VC=['var(--b2)','var(--p1)','#AEB6C1'];
   ['죽어 있었다','살아 있었다','둘 다 아니다'].forEach(function(t,i){h+='<button type="button" class="vopt" data-vote="'+i+'" aria-pressed="false" style="--c:'+VC[i]+'"><span class="vdot" aria-hidden="true"></span><span class="vname">'+t+'</span><span class="vtrack" aria-hidden="true"><span class="vfill f'+i+'"></span></span><span class="vpct"></span></button>';});
-  return h+'</div><p id="vstat" aria-live="polite"></p></div><div class="qrcard"><div id="qrbox"></div><b>'+VOTE_URL.replace(/^https?:\/\//,'')+'</b><small>찍으면 휴대폰에서 이 화면이 열립니다</small></div></div>';},
+  return h+'</div><p id="vstat" aria-live="polite"></p></div><div id="qrbox"></div></div>';},
  who:function(){return '<div class="ov cards"><div class="cards4">'+
    '<section class="mod ocard"><div class="ohead"><span class="n">1</span><h3>국회</h3></div><p class="dec">범주와 사망 시각</p>'+
     '<div class="viz" aria-hidden="true">'+mt('b',12,14,96,'border-radius:10px 0 0 10px')+mt('aid',111,14,46)+mt('dead',160,14,73)+
@@ -817,13 +822,15 @@ function paintVote(){
       var el=list[i],share=tot?c[i]/tot:0;
       el.setAttribute('aria-pressed',String(!STATIC&&V.me.choice===i));
       if(cooling||V.busy)el.setAttribute('aria-disabled','true');else el.removeAttribute('aria-disabled');
-      el.querySelector('.vfill').style.transform='scaleX('+(show?share:0)+')';
+      el.querySelector('.vfill').style.width=(show?share*100:0)+'%';
       el.querySelector('.vpct,.pp').textContent=show?Math.round(share*100)+'%':'';
     }
   });
   $('phone').classList.toggle('shown',show);
   var vs=$('vstat');
-  if(vs)vs.textContent=STATIC?'':V.err?'집계 서버에 연결하지 못했습니다. 손을 들어 답해 주세요.':(V.counts?'지금까지 '+tot+'명 참여':'');
+  var change=V.me.choice===null?'':(cooling?' '+coolLeft()+'초 뒤에 답을 바꿀 수 있습니다.':' 다른 답을 누르면 바꿀 수 있습니다.');
+  if(vs)vs.textContent=STATIC?'':V.msg?V.msg:V.err?'집계 서버에 연결하지 못했습니다. 손을 들어 답해 주세요.':(V.counts?'지금까지 '+tot+'명 참여.'+change:'');
+  if(vs)vs.className=V.msgErr?'err':'';
   var ps=$('pstat');ps.className=V.msgErr?'err':'';
   ps.textContent=V.msg||(V.err?'집계 서버에 연결하지 못했습니다. 잠시 뒤 다시 눌러 주세요.':V.me.choice===null?'하나를 고르면 지금까지의 결과가 보입니다.':
     (V.counts?'지금까지 '+tot+'명 참여. '+(cooling?coolLeft()+'초 뒤에 답을 바꿀 수 있습니다.':'다른 답을 누르면 바꿀 수 있습니다.'):''));
@@ -864,7 +871,7 @@ function drawQR(){
   var q=window.qrcode(0,'M');q.addData(VOTE_URL);q.make();
   var n=q.getModuleCount(),d='';
   for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))d+='M'+k+' '+r+'h1v1h-1z';
-  box.innerHTML='<svg viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" role="img" aria-label="이 화면으로 오는 QR 코드" shape-rendering="crispEdges"><path d="'+d+'" fill="#14181D"/></svg>';
+  box.innerHTML='<svg viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" role="img" aria-label="투표 화면으로 가는 QR 코드" shape-rendering="crispEdges"><path d="'+d+'" fill="#14181D"/></svg>';
 }
 var dlg=$('resetdlg');
 function openReset(msg){$('pinerr').textContent=msg;dlg.returnValue='';dlg.showModal();}
