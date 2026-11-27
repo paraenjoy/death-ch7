@@ -264,9 +264,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .pmon{padding:20px 16px 16px;border-radius:16px;background:var(--mon);color:var(--mon-ink)}
 .pd{margin:0;font-size:16px;line-height:1.55;color:var(--mon-ink2);word-break:keep-all}
 #phone h1{margin:6px 0 0;font-size:clamp(1.8rem,1.35rem + 2.2vw,2.5rem);line-height:1.2;font-weight:600;letter-spacing:-.02em;word-break:keep-all}
-.popts{display:grid;gap:10px;margin-top:18px}
-.popt{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:12px;min-block-size:68px;padding:14px;border-radius:12px;border:0;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22);color:inherit;font:inherit;text-align:left}
-.popt[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--mon-ink)}
+.popts{display:grid;gap:18px;margin-top:20px}
+.popt{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;column-gap:12px;row-gap:8px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left}
 .popt:not(.win) .pn,.popt:not(.win) .pp{color:#C5CCD8}
 .popt .pn{font-size:1.2rem;font-weight:600}
 .popt .pp{font-family:var(--mono);font-size:1.1rem;font-weight:500;font-variant-numeric:tabular-nums}
@@ -384,7 +383,7 @@ body.static *,#print *{animation:none!important;transition:none!important}
   </div>
 
   <div id="verdict">
-    <div id="vhead"><span class="live"><i aria-hidden="true"></i>판정 <span id="basis" style="font-weight:400"></span></span><span id="intu"></span></div>
+    <div id="vhead"><span class="live"><i aria-hidden="true"></i><span>판정<span id="basis" style="font-weight:400"></span></span></span><span id="intu"></span></div>
     <div class="vrow"><span>나는 존재하는가</span><span class="ans"><i aria-hidden="true"></i><b></b></span></div>
     <div class="vrow"><span>나는 살아 있는가</span><span class="ans"><i aria-hidden="true"></i><b></b></span></div>
     <div class="vrow"><span>나는 사람인가</span><span class="ans"><i aria-hidden="true"></i><b></b></span></div>
@@ -685,7 +684,7 @@ function paintVerdict(v,pending){
     var ok=(v[1]===c.intuition);
     it.textContent=ok?'○ 직관과 맞음':'× 직관과 어긋남';it.className=ok?'ok':'bad';
   }
-  $('basis').textContent=st.view?(st.view==='person'?'인격 관점':'육체 관점'):'';
+  $('basis').textContent=st.view?(st.view==='person'?' · 인격 관점':' · 육체 관점'):'';
 }
 function phoneCheck(){
   var on=ovKey==='vote'&&!phoneDeck&&!STATIC&&PHONE.matches;
