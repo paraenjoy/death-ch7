@@ -19,6 +19,7 @@
 - `index.html` 발표 화면 전체(HTML·CSS·JS 한 파일, 빌드 없음). 오른쪽 위 키보드 버튼이나 `?`로 단축키 목록을 연다
 - `vote.html` 발표 때 QR로 나눠 준 주소(`/vote`)를 19쪽(`/#19`)으로 넘긴다
 - `deck.pdf` 26쪽 PDF
+- `DESIGN.md` 색·서체·배치 값과, 고칠 때 지켜야 할 디자인 원칙(Visual Contract)
 - `vercel.json` 깔끔한 주소, 폰트 캐시, PDF 파일 이름
 - `supabase/schema.sql` 투표에 쓴 테이블과 함수
 - `docs/preview.png` README 미리보기 이미지
