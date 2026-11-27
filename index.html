@@ -207,23 +207,21 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 @keyframes beat{0%,40%,100%{transform:scale(1)}10%{transform:scale(1.13)}22%{transform:scale(1.02)}30%{transform:scale(1.08)}}
 .static .fig .beat{animation:none}
 
-/* vote: the class result. question on the left, one bar per answer on a light card, like the discussion step */
-.ov.vote{flex-direction:row;align-items:center;gap:40px;padding:0 44px 0 64px}
-.vleft{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
-.vleft p{margin:0;font-size:22px;line-height:1.5;color:var(--mon-ink2);word-break:keep-all}
-.vcard{flex:none;width:540px;padding:18px 24px 14px}
-.vrows{display:flex;flex-direction:column;gap:13px}
-.vopt{display:grid;grid-template-columns:128px minmax(0,1fr) auto;align-items:baseline;column-gap:8px;row-gap:6px}
+/* vote: the class result, one bar per answer */
+.ov.vote{flex-direction:row;align-items:center;padding:0 56px}
+.vleft{flex:1;min-width:0}
+.vrows{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.vopt{display:grid;grid-template-columns:28px 172px minmax(0,1fr) 72px 76px;align-items:center;gap:16px;min-height:50px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left}
 .vdot{display:block;justify-self:center;width:18px;height:18px;border-radius:50%;background:var(--c)}
-.vname{font-size:21px;font-weight:600;white-space:nowrap}
-.vpct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:24px;line-height:1.2;font-weight:500}
-.vcnt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:16px;color:var(--ink2);text-align:right}
-.vtrack{grid-column:1/-1;position:relative;display:block;height:18px;border-radius:6px;background:#fff;overflow:hidden}
+.vname{font-size:26px;font-weight:600;white-space:nowrap}
+.vtrack{position:relative;display:block;height:36px;border-radius:8px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3);overflow:hidden}
 .vfill{position:absolute;left:0;top:0;bottom:0;width:0;overflow:hidden;transition:width .9s cubic-bezier(.3,.7,.2,1)}
 .vfill.f0{background:linear-gradient(180deg,var(--b1),var(--b2))}
 .vfill.f1{background:linear-gradient(180deg,var(--p1),var(--p2))}
 .vfill.f2{background:linear-gradient(180deg,#C9CFD7,#9AA3AE)}
-#vstat{margin:13px 0 0;padding-top:10px;border-top:1px solid var(--line);font-size:15px;color:var(--ink2)}
+.vcnt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:20px;color:var(--mon-ink2);text-align:right}
+.vpct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;text-align:right}
+#vstat{min-height:24px;margin:14px 0 0;font-size:17px;color:var(--mon-ink2)}
 
 /* who decides and questions: four cards on the monitor */
 .cards4{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
@@ -579,8 +577,9 @@ var OVERLAYS={
    '<span style="left:22px;top:204px;font-size:15px">심장은 뛰지만, 생각은 돌아오지 않는다</span>'+
   '</div></div>';},
  vote:function(){
-  var h='<div class="ov vote"><div class="vleft"><p>체온을 낮춰 신진대사를 모두 멈췄다가 나중에 되살렸다. 멈춰 있는 동안,</p><h2 id="vq">가사상태의 사이먼은</h2></div><div class="vcard ocard"><div class="vrows" role="list" aria-labelledby="vq">';
-  ['죽어 있었다','살아 있었다','둘 다 아니다'].forEach(function(t,i){h+='<div class="vopt" role="listitem"><span class="vname">'+t+'</span><span class="vpct"></span><span class="vcnt"></span><span class="vtrack" aria-hidden="true"><span class="vfill f'+i+'"></span></span></div>';});
+  var h='<div class="ov vote"><div class="vleft"><h2 id="vq">가사상태의 사이먼은</h2><div class="vrows" role="list" aria-labelledby="vq">';
+  var VC=['var(--b2)','var(--p1)','#AEB6C1'];
+  ['죽어 있었다','살아 있었다','둘 다 아니다'].forEach(function(t,i){h+='<div class="vopt" role="listitem" style="--c:'+VC[i]+'"><span class="vdot" aria-hidden="true"></span><span class="vname">'+t+'</span><span class="vtrack" aria-hidden="true"><span class="vfill f'+i+'"></span></span><span class="vcnt"></span><span class="vpct"></span></div>';});
   return h+'</div><p id="vstat"></p></div></div>';},
  who:function(){return '<div class="ov cards"><div class="cards4">'+
    '<section class="mod ocard"><div class="ohead"><span class="n">1</span><h3>국회</h3></div><p class="dec">범주와 사망 시각</p>'+
