@@ -211,11 +211,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .ov.vote{flex-direction:row;align-items:center;gap:48px;padding:0 28px 0 56px}
 .vleft{flex:1;min-width:0}
 .vrows{display:flex;flex-direction:column;gap:10px;margin-top:18px}
-.vopt{display:grid;grid-template-columns:28px 172px minmax(0,1fr) 76px;align-items:center;gap:16px;min-height:50px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
-.vopt[aria-disabled="true"]{cursor:default}
-.vdot{display:block;width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 2.5px rgba(255,255,255,.75);transition:box-shadow .2s,background .2s}
-.vopt:hover .vdot{box-shadow:inset 0 0 0 2.5px #fff,0 0 0 4px rgba(255,255,255,.14)}
-.vopt[aria-pressed="true"] .vdot,.popt[aria-pressed="true"] .vdot{background:var(--c);box-shadow:inset 0 0 0 5px var(--mon),0 0 0 2.5px var(--c)}
+.vopt{display:grid;grid-template-columns:28px 172px minmax(0,1fr) 76px;align-items:center;gap:16px;min-height:50px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left}
+.vdot{display:block;justify-self:center;width:18px;height:18px;border-radius:50%;background:var(--c)}
 .vname{font-size:26px;font-weight:600;white-space:nowrap}
 .vtrack{position:relative;display:block;height:36px;border-radius:8px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3);overflow:hidden}
 .vfill{position:absolute;left:0;top:0;bottom:0;width:0;overflow:hidden;transition:width .9s cubic-bezier(.3,.7,.2,1)}
@@ -228,9 +225,10 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .vfill.f2{background:linear-gradient(180deg,#C9CFD7,#9AA3AE)}
 .vpct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:26px;font-weight:500;text-align:right}
 #vstat{min-height:24px;margin:14px 0 0;font-size:17px;color:var(--mon-ink2)}
-#vstat.err{color:#FCA5A5}
-#qrbox{flex:none;align-self:center;width:272px;height:272px;border-radius:12px;background:#fff;overflow:hidden}
-#qrbox svg{display:block;width:100%;height:100%}
+#vsum{flex:none;align-self:center;display:flex;flex-direction:column;align-items:center;justify-content:center;width:272px;height:272px;border-radius:12px;background:#fff;color:#14181D;text-align:center}
+#vsum .vday{margin:0;font-size:18px;font-weight:500;color:#4A5563}
+#vsum .vn{margin:6px 0 0;font-family:var(--mono);font-size:96px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+#vsum .vu{margin:10px 0 0;font-size:20px;font-weight:600}
 
 /* who decides and questions: four cards on the monitor */
 .cards4{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
@@ -271,33 +269,20 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .pd{margin:0;font-size:16px;line-height:1.55;color:var(--mon-ink2);word-break:keep-all}
 #phone h1{margin:6px 0 0;font-size:clamp(1.8rem,1.35rem + 2.2vw,2.5rem);line-height:1.2;font-weight:600;letter-spacing:-.02em;word-break:keep-all}
 .popts{display:grid;gap:10px;margin-top:18px}
-.popt{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:12px;min-block-size:68px;padding:14px;border-radius:12px;border:0;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22);color:inherit;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.popt{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:12px;min-block-size:68px;padding:14px;border-radius:12px;border:0;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22);color:inherit;font:inherit;text-align:left}
 .popt[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--mon-ink)}
-.popt[aria-disabled="true"]{cursor:default}
-.popt .vdot{width:22px;height:22px}
+.popt .vdot{width:16px;height:16px}
 .popt .pn{font-size:1.2rem;font-weight:600}
 .popt .pp{font-family:var(--mono);font-size:1.1rem;font-weight:500;font-variant-numeric:tabular-nums}
 .popt .pt{grid-column:1/-1;position:relative;display:none;height:10px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden}
-#phone.shown .popt .pt{display:block}
+.popt .pt{display:block}
 #pstat{min-height:1.6em;margin:14px 0 0;font-size:.95rem;line-height:1.6;color:var(--mon-ink2);word-break:keep-all}
-#pstat.err{color:#FCA5A5}
 .preadout{min-height:56px;padding:10px 16px;gap:12px}
 .preadout p{font-size:17px}
 #pdeck{align-self:flex-start;margin-top:auto;min-height:44px;padding:8px 4px 0;border:0;background:none;color:var(--ink);font-size:.95rem;font-weight:500;text-decoration:underline}
 body.phonevote #fit,body.phonevote #rot{display:none!important}
 
-/* dialogs and notes outside the stage */
-dialog{border:1px solid var(--line);border-radius:14px;padding:22px 24px;width:min(340px,calc(100vw - 32px));color:var(--ink);font-family:var(--sans)}
-dialog,dialog::backdrop{overscroll-behavior:contain}
-dialog::backdrop{background:rgba(16,21,27,.5)}
-dialog h2{margin:0 0 6px;font-size:20px}
-dialog p{margin:0 0 14px;font-size:15px;color:var(--ink2)}
-dialog label{display:block;font-size:14px;font-weight:500;margin-bottom:6px}
-dialog input{width:100%;min-height:44px;padding:8px 12px;border-radius:8px;border:1px solid var(--mute);font:inherit;font-size:18px}
-dialog .row{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
-dialog .row button{min-height:44px;padding:8px 16px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-weight:500}
-dialog .row button[value="ok"]{background:var(--ink);border-color:var(--ink);color:#fff}
-#pinerr{min-height:20px;margin:8px 0 0;color:#B42318;font-size:14px}
+/* notes outside the stage */
 #rot{display:none;position:fixed;left:12px;right:12px;bottom:12px;padding:10px 14px;border-radius:10px;background:var(--mon);color:var(--mon-ink);font-size:14px;text-align:center}
 @media (orientation:portrait) and (max-width:700px){#rot{display:block}}
 #print{display:none}
@@ -306,7 +291,7 @@ body.static *,#print *{animation:none!important;transition:none!important}
 @media print{
   @page{size:1280px 720px;margin:0}
   html,body{height:auto;overflow:visible;background:#fff}
-  #fit,#rot,#phone,dialog,#dlmenu,#keymenu{display:none!important}
+  #fit,#rot,#phone,#dlmenu,#keymenu{display:none!important}
   #print{display:block}
   #print #stage{transform:none!important;break-after:page;overflow:hidden;background:var(--bg)}
   *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
@@ -432,31 +417,20 @@ body.static *,#print *{animation:none!important;transition:none!important}
   <button type="button" id="dlhtml">HTML 파일 받기</button>
 </div>
 
-<dialog id="resetdlg">
-  <form method="dialog">
-    <h2>투표 초기화</h2>
-    <p>지금까지 모인 표를 모두 지웁니다.</p>
-    <label for="pin">PIN</label>
-    <input id="pin" name="pin" type="password" inputmode="numeric" autocomplete="off" aria-describedby="pinerr">
-    <p id="pinerr" role="alert"></p>
-    <div class="row"><button type="button" id="pincancel">취소</button><button value="ok">초기화</button></div>
-  </form>
-</dialog>
-
 <p id="rot">가로로 돌리면 크게 볼 수 있습니다.</p>
 
 <div id="phone" hidden>
   <main>
-    <header class="phead"><div><p class="psec">Ⅲ 멈춤이 아니라 능력</p><p class="ptitle">투표</p></div><span class="pcount">19 / 26</span></header>
+    <header class="phead"><div><p class="psec">Ⅲ 멈춤이 아니라 능력</p><p class="ptitle">투표 결과</p></div><span class="pcount">19 / 26</span></header>
     <section class="pmon">
       <p class="pd">체온을 낮춰 신진대사를 모두 멈췄다가 나중에 되살렸다. 멈춰 있는 동안,</p>
       <h1 id="pq">가사상태의 사이먼은</h1>
-      <div class="popts" role="group" aria-labelledby="pq">
-        <button type="button" class="popt" data-vote="0" aria-pressed="false" style="--c:var(--b2)"><span class="vdot" aria-hidden="true"></span><span class="pn">죽어 있었다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f0"></span></span></button>
-        <button type="button" class="popt" data-vote="1" aria-pressed="false" style="--c:var(--p1)"><span class="vdot" aria-hidden="true"></span><span class="pn">살아 있었다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f1"></span></span></button>
-        <button type="button" class="popt" data-vote="2" aria-pressed="false" style="--c:#AEB6C1"><span class="vdot" aria-hidden="true"></span><span class="pn">둘 다 아니다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f2"></span></span></button>
+      <div class="popts" role="list" aria-labelledby="pq">
+        <div class="popt" style="--c:var(--b2)"><span class="vdot" aria-hidden="true"></span><span class="pn">죽어 있었다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f0"></span></span></div>
+        <div class="popt" style="--c:var(--p1)"><span class="vdot" aria-hidden="true"></span><span class="pn">살아 있었다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f1"></span></span></div>
+        <div class="popt" style="--c:#AEB6C1"><span class="vdot" aria-hidden="true"></span><span class="pn">둘 다 아니다</span><span class="pp"></span><span class="pt" aria-hidden="true"><span class="vfill f2"></span></span></div>
       </div>
-      <p id="pstat" role="status"></p>
+      <p id="pstat"></p>
     </section>
     <div class="readout preadout"><span class="tag">판독</span><span class="sep" aria-hidden="true"></span><p>케이건은 세 가지 답을 모두 열어 둔다.</p></div>
     <button type="button" id="pdeck">발표 화면 전체 보기</button>
@@ -464,15 +438,12 @@ body.static *,#print *{animation:none!important;transition:none!important}
 </div>
 <div id="print" aria-hidden="true"></div>
 
-<script src="js/qrcode.js"></script>
 <script>
 (function(){
 'use strict';
-var API='https://bszfsnipdxsueyvspqlu.supabase.co/rest/v1/rpc/';
-var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzemZzbmlwZHhzdWV5dnNwcWx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0Mjg4MzgsImV4cCI6MjExMTAwNDgzOH0.TKxGaFFw4Xy2PLNsCIT2eh0-_C29dZmUPlhnnO3ai3s';
 var SITE=/^https?:$/.test(location.protocol)?location.origin:'https://death-ch7.vercel.app';
-var VOTE_URL=SITE+'/vote';
-var VSTORE='ch7-simon-vote';
+/* final vote from the class on 26 Nov 2026: dead, alive, neither */
+var RESULT={day:'11월 26일 수업',counts:[14,20,4]};
 var X0=168,X1=1136;
 function seg(a,b,s,o){var r={a:a,b:b,s:s,need:0,resume:false};if(o)for(var k in o)r[k]=o[k];return r;}
 function pad(n){return ('0'+n).slice(-2);}
@@ -575,7 +546,7 @@ var STEPS=[
  S({sec:SEC3,title:'부서진 것 · 혼수상태 2',c:6,view:'person',def:'capacity',level:3,intu:true,cap:'조직 자체가 파괴됐다. 몸은 살아 있지만 사람으로서는 존재하지 않는다.'}),
  S({sec:SEC3,title:'사이먼의 가사상태 · 그는 죽었는가?',c:7,view:'body',def:'stop',level:3,cap:'B 기능이 멈춘 것이 기준이면 사이먼은 죽었다가 되살아났다.'}),
  S({sec:SEC3,title:'사이먼의 가사상태 · 능력이 기준이라면?',c:7,view:'body',def:'capacity',level:3,cap:'능력이 기준이면 사이먼은 처음부터 죽지 않았다. 케이건도 어느 쪽이 맞는지 확신하지 못한다.'}),
- S({sec:SEC3,title:'투표',c:7,view:'body',def:'capacity',level:3,ov:'vote',cap:'케이건은 세 가지 답을 모두 열어 둔다. 하나를 고르면 지금까지의 결과가 보인다.'}),
+ S({sec:SEC3,title:'투표 결과',c:7,view:'body',def:'capacity',level:3,ov:'vote',cap:'케이건은 세 가지 답을 모두 열어 둔다. 수업에서는 살아 있었다는 답이 가장 많았다.'}),
  S({sec:SEC3,title:'케이건의 결론 · 죽음에 신비는 없다',c:0,view:'body',def:'capacity',probe:'corpse',level:3,again:true,cap:'몸은 작동하다가 부서진다. 케이건에게는 이것이 죽음에 관한 전부다.'}),
  S({sec:SEC4,title:'‘능력’은 어떤 수단까지 허용한 능력인가',c:8,view:'body',def:'capacity',means:1,level:4,cap:'인공호흡기가 몸을 유지한다. 기계의 도움까지 수단으로 인정하면 이 몸은 살아 있다.'}),
  S({sec:SEC4,title:'법이 그은 선',c:8,view:'body',def:'capacity',means:0,level:4,cap:'법은 뇌 전체가 되살아날 수 없다고 판정된 뇌사자를 살아 있는 사람과 구분한다.'}),
@@ -613,10 +584,11 @@ var OVERLAYS={
    '<span style="left:22px;top:204px;font-size:15px">심장은 뛰지만, 생각은 돌아오지 않는다</span>'+
   '</div></div>';},
  vote:function(){
-  var h='<div class="ov vote"><div class="vleft"><h2 id="vq">가사상태의 사이먼은</h2><div class="vrows" role="group" aria-labelledby="vq">';
+  var h='<div class="ov vote"><div class="vleft"><h2 id="vq">가사상태의 사이먼은</h2><div class="vrows" role="list" aria-labelledby="vq">';
   var VC=['var(--b2)','var(--p1)','#AEB6C1'];
-  ['죽어 있었다','살아 있었다','둘 다 아니다'].forEach(function(t,i){h+='<button type="button" class="vopt" data-vote="'+i+'" aria-pressed="false" style="--c:'+VC[i]+'"><span class="vdot" aria-hidden="true"></span><span class="vname">'+t+'</span><span class="vtrack" aria-hidden="true"><span class="vfill f'+i+'"></span></span><span class="vpct"></span></button>';});
-  return h+'</div><p id="vstat" aria-live="polite"></p></div><div id="qrbox"></div></div>';},
+  ['죽어 있었다','살아 있었다','둘 다 아니다'].forEach(function(t,i){h+='<div class="vopt" role="listitem" style="--c:'+VC[i]+'"><span class="vdot" aria-hidden="true"></span><span class="vname">'+t+'</span><span class="vtrack" aria-hidden="true"><span class="vfill f'+i+'"></span></span><span class="vpct"></span></div>';});
+  var tot=RESULT.counts[0]+RESULT.counts[1]+RESULT.counts[2];
+  return h+'</div><p id="vstat"></p></div><div id="vsum"><p class="vday">'+RESULT.day+'</p><p class="vn">'+tot+'</p><p class="vu">명 참여</p></div></div>';},
  who:function(){return '<div class="ov cards"><div class="cards4">'+
    '<section class="mod ocard"><div class="ohead"><span class="n">1</span><h3>국회</h3></div><p class="dec">범주와 사망 시각</p>'+
     '<div class="viz" aria-hidden="true">'+mt('b',12,14,96,'border-radius:10px 0 0 10px')+mt('aid',111,14,46)+mt('dead',160,14,73)+
@@ -729,7 +701,7 @@ function showOverlay(k){
   if(k!==ovKey){
     ovKey=k;var o=$('overlay');
     o.innerHTML=k?OVERLAYS[k]():'';o.classList.toggle('show',!!k);
-    if(k==='vote'){drawQR();paintVote();voteStart();}else voteStop();
+    if(k==='vote')paintVote();
   }
   phoneCheck();
 }
@@ -794,93 +766,22 @@ function setCtl(k,v){
 }
 function freeCase(i){manual=true;tocOpen=false;st.idle=false;st.c=(i+CASES.length)%CASES.length;st.probe='main';st.level=4;st.intu=true;render();}
 
-/* ---------- vote: pick a bar and the results show; the presenter can show them with Enter ---------- */
-var V={counts:null,presenter:false,timer:null,err:false,busy:false,coolUntil:0,tick:null,msg:'',msgErr:false,me:{id:null,choice:null,round:null}};
-function rpc(fn,body){
-  return fetch(API+fn,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})})
-    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
-}
-function uuid(){
-  if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
-  var b=new Uint8Array(16);crypto.getRandomValues(b);b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;
-  var h=[];for(var i=0;i<16;i++)h.push((b[i]+256).toString(16).slice(1));
-  return h.slice(0,4).join('')+'-'+h.slice(4,6).join('')+'-'+h.slice(6,8).join('')+'-'+h.slice(8,10).join('')+'-'+h.slice(10).join('');
-}
-function vload(){
-  try{var s=JSON.parse(localStorage.getItem(VSTORE)||'null');if(s&&s.id){V.me.id=s.id;V.me.choice=(s.choice===0||s.choice===1||s.choice===2)?s.choice:null;V.me.round=s.round||null;}}catch(e){}
-  if(!V.me.id)V.me.id=uuid();
-}
-function vsave(){try{localStorage.setItem(VSTORE,JSON.stringify(V.me));}catch(e){}}
-function coolLeft(){return Math.max(0,Math.ceil((V.coolUntil-Date.now())/1000));}
+/* ---------- vote: the class result, fixed after the talk ---------- */
 function paintVote(){
-  var c=V.counts||[0,0,0],tot=c[0]+c[1]+c[2],show=!STATIC&&!!V.counts&&(V.me.choice!==null||V.presenter),cooling=coolLeft()>0;
+  var c=RESULT.counts,tot=c[0]+c[1]+c[2];
   [ROOT.querySelectorAll('#overlay .vopt'),document.querySelectorAll('#phone .popt')].forEach(function(list){
     for(var i=0;i<list.length;i++){
-      var el=list[i],share=tot?c[i]/tot:0;
-      el.setAttribute('aria-pressed',String(!STATIC&&V.me.choice===i));
-      if(cooling||V.busy)el.setAttribute('aria-disabled','true');else el.removeAttribute('aria-disabled');
-      el.querySelector('.vfill').style.width=(show?share*100:0)+'%';
-      el.querySelector('.vpct,.pp').textContent=show?Math.round(share*100)+'%':'';
+      var el=list[i],pct=Math.round(c[i]/tot*100);
+      el.setAttribute('role','listitem');
+      el.querySelector('.vfill').style.width=pct+'%';
+      el.querySelector('.vpct,.pp').textContent=pct+'%';
+      el.setAttribute('aria-label',el.querySelector('.vname,.pn').textContent+' '+c[i]+'명, '+pct+'%');
     }
   });
-  $('phone').classList.toggle('shown',show);
-  var vs=$('vstat');
-  var change=V.me.choice===null?'':(cooling?' '+coolLeft()+'초 뒤에 답을 바꿀 수 있습니다.':' 다른 답을 누르면 바꿀 수 있습니다.');
-  if(vs)vs.textContent=STATIC?'':V.msg?V.msg:V.err?'집계 서버에 연결하지 못했습니다. 손을 들어 답해 주세요.':(V.counts?'지금까지 '+tot+'명 참여.'+change:'');
-  if(vs)vs.className=V.msgErr?'err':'';
-  var ps=$('pstat');ps.className=V.msgErr?'err':'';
-  ps.textContent=V.msg||(V.err?'집계 서버에 연결하지 못했습니다. 잠시 뒤 다시 눌러 주세요.':V.me.choice===null?'하나를 고르면 지금까지의 결과가 보입니다.':
-    (V.counts?'지금까지 '+tot+'명 참여. '+(cooling?coolLeft()+'초 뒤에 답을 바꿀 수 있습니다.':'다른 답을 누르면 바꿀 수 있습니다.'):''));
+  var line=RESULT.day+', '+tot+'명이 답했습니다.';
+  var vs=$('vstat');if(vs)vs.textContent=line;
+  $('pstat').textContent=line;
 }
-function fresh(c){
-  V.counts=c;V.err=false;
-  if(V.me.choice!==null&&V.me.round!==null&&c[3]!==V.me.round){V.me.choice=null;V.me.round=null;vsave();V.msg='투표가 새로 시작됐습니다. 다시 골라 주세요.';V.msgErr=false;}
-  paintVote();
-}
-function pollVote(){
-  if(STATIC||document.hidden||V.busy)return;
-  rpc('vote_counts').then(fresh).catch(function(){V.err=true;paintVote();});
-}
-function voteStart(){if(V.timer||STATIC)return;pollVote();V.timer=setInterval(pollVote,2500);}
-function voteStop(){if(V.timer){clearInterval(V.timer);V.timer=null;}}
-function cool(){
-  V.coolUntil=Date.now()+3200;clearInterval(V.tick);
-  V.tick=setInterval(function(){paintVote();if(coolLeft()===0){clearInterval(V.tick);V.tick=null;paintVote();}},500);
-}
-function choose(i){
-  if(STATIC||V.busy||i===V.me.choice)return;
-  if(coolLeft()>0){paintVote();return;}
-  var before=V.me.choice;
-  V.busy=true;V.me.choice=i;V.msg='보내는 중입니다.';V.msgErr=false;paintVote();
-  rpc('cast_vote',{p_voter:V.me.id,p_choice:i}).then(function(res){
-    V.busy=false;if(res&&res.counts)V.counts=res.counts;V.err=false;
-    if(res&&res.ok){V.me.round=V.counts?V.counts[3]:null;vsave();V.msg='';cool();}
-    else{
-      V.me.choice=before;
-      if(res&&res.reason==='wait'){V.msg='';cool();}
-      else{V.msg='지금은 표를 더 받을 수 없습니다.';V.msgErr=true;}
-    }
-    paintVote();
-  }).catch(function(){V.busy=false;V.me.choice=before;V.msg='전송하지 못했습니다. 연결을 확인하고 다시 눌러 주세요.';V.msgErr=true;paintVote();});
-}
-function drawQR(){
-  var box=$('qrbox');if(!box||!window.qrcode)return;
-  var q=window.qrcode(0,'M');q.addData(VOTE_URL);q.make();
-  var n=q.getModuleCount(),d='';
-  for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))d+='M'+k+' '+r+'h1v1h-1z';
-  box.innerHTML='<svg viewBox="-2 -2 '+(n+4)+' '+(n+4)+'" role="img" aria-label="투표 화면으로 가는 QR 코드" shape-rendering="crispEdges"><path d="'+d+'" fill="#14181D"/></svg>';
-}
-var dlg=$('resetdlg');
-function openReset(msg){$('pinerr').textContent=msg;dlg.returnValue='';dlg.showModal();}
-$('pincancel').addEventListener('click',function(){$('pin').value='';dlg.close('cancel');});
-dlg.addEventListener('close',function(){
-  if(dlg.returnValue!=='ok')return;
-  var pin=$('pin').value;$('pin').value='';
-  rpc('reset_votes',{p_pin:pin}).then(function(ok){
-    if(ok){V.presenter=false;$('pinerr').textContent='';pollVote();}
-    else openReset('PIN이 맞지 않습니다. 다시 입력해 주세요.');
-  }).catch(function(){openReset('서버에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.');});
-});
 
 /* ---------- download and print ---------- */
 function buildPrint(){
@@ -919,12 +820,10 @@ $('overlay').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
   if(b.dataset.go!==undefined)go(Number(b.dataset.go));
   else if(b.dataset['case']!==undefined)freeCase(Number(b.dataset['case']));
-  else if(b.dataset.vote!==undefined)choose(Number(b.dataset.vote));
 });
 $('phone').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
-  if(b.dataset.vote!==undefined)choose(Number(b.dataset.vote));
-  else if(b.id==='pdeck'){phoneDeck=true;phoneCheck();}
+  if(b.id==='pdeck'){phoneDeck=true;phoneCheck();}
 });
 $('controls').addEventListener('click',function(e){var b=e.target.closest('.opt');if(b)setCtl(b.dataset.k,b.dataset.v);});
 var SECSTART={'1':2,'2':7,'3':9,'4':20};
@@ -933,11 +832,9 @@ try{if(localStorage.getItem('ch7-readout')==='light')ROOT.classList.add('rl');}c
 document.addEventListener('keydown',function(e){
   if(e.isComposing)return;
   if(e.metaKey||e.ctrlKey||e.altKey)return;
-  if(e.target&&e.target.closest&&e.target.closest('input,dialog,#dlmenu,#keymenu'))return;
+  if(e.target&&e.target.closest&&e.target.closest('input,#dlmenu,#keymenu'))return;
   var k=e.key,cd=e.code||'';
-  if(ovKey==='vote'&&k==='Enter'&&e.keyCode!==229&&!(e.target.closest&&e.target.closest('button'))){e.preventDefault();V.presenter=!V.presenter;paintVote();}
-  else if(ovKey==='vote'&&e.shiftKey&&(cd==='KeyR'||k==='R'||k==='r')){e.preventDefault();openReset('');}
-  else if(k==='ArrowRight'||k==='PageDown'||k===' '){e.preventDefault();if(manual||tocOpen)go(idx);else go(idx+1);}
+  if(k==='ArrowRight'||k==='PageDown'||k===' '){e.preventDefault();if(manual||tocOpen)go(idx);else go(idx+1);}
   else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();if(manual||tocOpen)go(idx);else go(idx-1);}
   else if(cd==='KeyM'||k==='m'||k==='M'){tocOpen=!tocOpen;render();}
   else if(cd==='KeyC'||k==='c'||k==='C'){setLight(!ROOT.classList.contains('rl'));}
@@ -951,17 +848,16 @@ document.addEventListener('keydown',function(e){
 var tx=null;
 document.addEventListener('touchstart',function(e){tx=(e.touches.length===1&&$('phone').hidden)?e.touches[0].clientX:null;},{passive:true});
 document.addEventListener('touchend',function(e){
-  if(tx===null||(e.target.closest&&e.target.closest('dialog,#dlmenu,#keymenu')))return;
+  if(tx===null||(e.target.closest&&e.target.closest('#dlmenu,#keymenu')))return;
   var dx=e.changedTouches[0].clientX-tx;tx=null;
   if(Math.abs(dx)>60)go(idx+(dx<0?1:-1));
 },{passive:true});
-document.addEventListener('visibilitychange',function(){if(!document.hidden&&ovKey==='vote')pollVote();});
 function fit(){var s=Math.min(window.innerWidth/1280,window.innerHeight/720);$('stage').style.transform='scale('+s+')';}
 window.addEventListener('resize',function(){fit();phoneCheck();});
-window.__deck={go:go,count:STEPS.length,buildPrint:buildPrint,setStatic:function(v){STATIC=v;document.body.classList.toggle('static',v);phoneCheck();},vote:V,paintVote:paintVote};
+window.__deck={go:go,count:STEPS.length,buildPrint:buildPrint,setStatic:function(v){STATIC=v;document.body.classList.toggle('static',v);phoneCheck();},paintVote:paintVote};
 function fromHash(){var m=/^#(\d{1,2})$/.exec(location.hash);if(m){var n=Number(m[1])-1;if(n>=0&&n<STEPS.length)return n;}return null;}
 window.addEventListener('hashchange',function(){var h=fromHash();if(h!==null&&h!==idx)go(h);});
-vload();fit();var h0=fromHash();go(h0===null?0:h0);
+fit();var h0=fromHash();go(h0===null?0:h0);
 })();
 </script>
 </body>
